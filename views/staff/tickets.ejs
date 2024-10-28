@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Tickets - Helpdesk System</title>
+    <link rel="stylesheet" href="/public/style.css">
+</head>
+<body>
+    <header>
+        <h1>My Tickets</h1>
+        <nav>
+            <ul>
+                <li><a href="/user/tickets">My Tickets</a></li>
+                <li><a href="/user/knowledge-base">Knowledge Base</a></li>
+                <li><a href="/logout">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <h2>Submit a New Ticket</h2>
+        <form action="/user/tickets" method="POST">
+            <label for="subject">Subject:</label>
+            <input type="text" id="subject" name="subject" required>
+
+            <label for="description">Description:</label>
+            <textarea id="description" name="description" required></textarea>
+
+            <button type="submit" class="btn">Submit Ticket</button>
+        </form>
+
+        <h2>My Tickets</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Subject</th>
+                    <th>Status</th>
+                    <th>Created At</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% tickets.forEach(ticket => { %>
+                <tr>
+                    <td><%= ticket.id %></td>
+                    <td><%= ticket.subject %></td>
+                    <td><%= ticket.status %></td>
+                    <td><%= ticket.created_at %></td>
+                </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Helpdesk System</p>
+    </footer>
+</body>
+</html>

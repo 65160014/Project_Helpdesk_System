@@ -1,0 +1,50 @@
+.error-message {
+    color: red;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+body {
+    font-family: 'Courier New', Courier, monospace;
+    text-align: center;
+    background-color: #ffffff;
+}
+.container {
+    display: inline-block;
+    border: 1px solid black;
+    padding: 20px;
+    margin-top: 30px;
+}
+h1 {
+    font-size: 36px;
+    margin-bottom: 20px;
+}
+h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+.form-group {
+    margin-bottom: 15px;
+    text-align: left;
+}
+.form-group label {
+    display: inline-block;
+    width: 100px;
+    font-size: 18px;
+}
+.form-group input {
+    width: 300px;
+    height: 30px;
+    font-size: 18px;
+    border: 1px solid black;
+}
+.form-group button {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 18px;
+    padding: 5px 10px;
+    border: 1px solid black;
+    background-color: #ffffff;
+    cursor: pointer;
+    display: block;
+    margin: 0 auto;
+}

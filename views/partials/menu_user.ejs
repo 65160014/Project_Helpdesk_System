@@ -1,0 +1,41 @@
+<!-- views/partials/sidebar.ejs -->
+<nav class="sidebar">
+    <h2>HELPDESK</h2>
+    <ul>
+      <li><a href="/dashboard">Dashboard</a></li>
+      <li><a href="/tickets">Tickets</a></li>
+      <li><a href="/search">Search</a></li>
+    </ul>
+  </nav>
+  
+  <style>
+    .sidebar {
+      width: 200px;
+      height: 100vh;
+      position: fixed;
+      left: 0;
+      top: 0;
+      background-color: #f4f4f4;
+      padding-top: 20px;
+    }
+    .sidebar h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .sidebar ul {
+      list-style-type: none;
+      padding: 0;
+    }
+    .sidebar ul li {
+      padding: 10px;
+      text-align: center;
+    }
+    .sidebar ul li a {
+      color: black;
+      text-decoration: none;
+    }
+    .sidebar ul li a:hover {
+      background-color: #ddd;
+    }
+  </style>
+  
