@@ -51,7 +51,7 @@ app.post('/login', (req, res) => {
   const { username, password } = req.body;
 
   // Query the database to check if the user exists
-  const query = 'SELECT * FROM users WHERE username = ? AND password = ?';
+  const query = 'SELECT * FROM user WHERE username = ? AND password = ?';
   
   db.query(query, [username, password], (err, results) => {
     if (err) {
@@ -94,7 +94,7 @@ app.post('/register', (req, res) => {
     }
 
     // Check if the username or email already exists
-    const checkQuery = 'SELECT * FROM users WHERE username = ? OR email = ?';
+    const checkQuery = 'SELECT * FROM user WHERE username = ? OR email = ?';
     db.query(checkQuery, [username, email], (err, results) => {
         if (err) {
             console.error('Database query error:', err);
@@ -106,7 +106,7 @@ app.post('/register', (req, res) => {
         }
 
         // Insert the new user into the database
-        const query = 'INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)';
+        const query = 'INSERT INTO user (username, email, password, role) VALUES (?, ?, ?, ?)';
         db.query(query, [username, email, password, 'user'], (err, results) => {
             if (err) {
                 console.error('Database insertion error:', err);
