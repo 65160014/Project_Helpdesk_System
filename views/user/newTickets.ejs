@@ -3,55 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>New Tickets - Helpdesk System</title>
-    <link rel="stylesheet" href="/public/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="/css/style_tickets.css">
+    <title>New-Tickets</title>
 </head>
 <body>
-    <header>
-        <h1>New Tickets</h1>
-        <nav>
-            <ul>
-                <li><a href="/user/tickets/new">New Tickets</a></li>
-                <li><a href="/logout">Logout</a></li>
-            </ul>
-        </nav>
-    </header>
-
-    <main>
-        <h2>Assign Tickets</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Subject</th>
-                    <th>Description</th>
-                    <th>Assign</th>
-                </tr>
-            </thead>
-            <tbody>
-                <% tickets.forEach(ticket => { %>
-                <tr>
-                    <td><%= ticket.id %></td>
-                    <td><%= ticket.subject %></td>
-                    <td><%= ticket.description %></td>
-                    <td>
-                        <form action="/staff/tickets/assign/<%= ticket.id %>" method="POST">
-                            <select name="staffId">
-                                <% staff.forEach(st => { %>
-                                <option value="<%= st.id %>"><%= st.username %></option>
-                                <% }) %>
-                            </select>
-                            <button type="submit" class="btn">Assign</button>
-                        </form>
-                    </td>
-                </tr>
-                <% }) %>
-            </tbody>
-        </table>
-    </main>
-
-    <footer>
-        <p>&copy; 2024 Helpdesk System</p>
-    </footer>
+    <div class="container">
+        <div class="sidebar">
+            <div>
+                <h1>HELPDESK</h1>
+                <ul>
+                    <li><a href="/user/dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                    <li class="active"><a href="/user/tickets"><i class="fas fa-ticket-alt"></i> Tickets</a></li>
+                    <li><a href="/user/search"><i class="fas fa-search"></i> Search</a></li>
+                </ul>
+            </div>
+            <div class="profile">
+                <a href="#"><i class="fas fa-user-circle"></i></a>
+            </div>
+        </div>
+        <div class="content">
+            <div class="header">
+                <h2>New Ticket</h2>
+                <a href="/user/tickets" class="return-button">Return to tickets list</a>
+            </div>
+            
+            <!-- Updated form-container section -->
+            <div class="form-container">
+                <!-- Start of form element -->
+                <form action="/user/newTickets" method="POST">
+                    <label for="subject">Subject</label>
+                    <input type="text" id="subject" name="subject" required>
+                    
+                    <label for="body">Ticket body</label>
+                    <textarea id="body" name="body" required></textarea>
+                    
+                    <button type="submit" class="create-button">Create ticket</button>
+                </form>
+                
+                <!-- End of form element -->
+            </div>
+        </div>
+    </div>
 </body>
 </html>

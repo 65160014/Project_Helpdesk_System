@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="stylesheet" href="/css/style_tickets_staff.css">
-    <title>Dashboard</title>
+    <title>Queue</title>
 </head>
 <body>
   <div class="container">
@@ -23,7 +23,7 @@
             <ul>
               <li><a href="/admin/status"><i class="fas fa-tasks"></i> Status</a></li>
               <li><a href="/admin/queue"><i class="fas fa-user-clock"></i> Queue</a></li>
-              <li><a href="/admin/userList"><i class="fas fa-users"></i> Users</a></li>
+              <li><a href="/admin/queue"><i class="fas fa-users"></i> Users</a></li>
           </ul>
         </div>
         <div class="profile">
@@ -31,8 +31,39 @@
         </div>
     </div>
     <div class="content">
-      <h1>Welcome, Admin</h1>
-      <p>This is the admin dashboard.</p>
+        <div class="header">
+            <h2>Queue</h2>
+        </div>
+        <ul class="queue-list">
+            <li>
+                <div class="priority">
+                    <span>1</span>
+                    <a href="#">Low</a>
+                </div>
+                <div>▶</div>
+            </li>
+            <li>
+                <div class="priority">
+                    <span>2</span>
+                    <a href="#">Medium</a>
+                </div>
+                <div>▶</div>
+            </li>
+            <li>
+                <div class="priority">
+                    <span>3</span>
+                    <a href="#">High</a>
+                </div>
+                <div>▶</div>
+            </li>
+            <li>
+                <div class="priority">
+                    <span>4</span>
+                    <a href="#">Urgent</a>
+                </div>
+                <div>▶</div>
+            </li>
+        </ul>
     </div>
   </div>
 </body>

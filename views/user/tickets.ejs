@@ -6,7 +6,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="stylesheet" href="/css/style_tickets.css">
     <title>Tickets</title>
-
 </head>
 <body>
     <div class="container">
@@ -15,18 +14,18 @@
                 <h1>HELPDESK</h1>
                 <ul>
                     <li><a href="/user/dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
-                    <li class="active"><a href="#"><i class="fas fa-ticket-alt"></i> Tickets</a></li>
+                    <li class="active"><a href="/user/tickets"><i class="fas fa-ticket-alt"></i> Tickets</a></li>
                     <li><a href="/user/search"><i class="fas fa-search"></i> Search</a></li>
                 </ul>
             </div>
             <div class="profile">
-                <i class="fas fa-user-circle"></i>
+                <a href="#"><i class="fas fa-user-circle"></i></a>
             </div>
         </div>
         <div class="content">
             <div class="header">
                 <h2>My tickets</h2>
-                <a href="#" class="new-ticket">New ticket</a>
+                <a href="/user/newTickets" class="new-ticket">New ticket</a>
             </div>
             <div class="search-bar">
                 <i class="fas fa-search"></i>
@@ -46,16 +45,29 @@
                     <span>UPDATED AT</span>
                     <span>STATUS</span>
                 </div>
-                <div class="ticket-item">
-                    <a href="#">Website, ...</a>
-                    <span>08/14/2023</span>
-                    <span>a minute ago</span>
-                    <span>Open</span>
-                </div>
+
+                <% if (tickets.length === 0) { %> <!-- ตรวจสอบว่ามีตั๋วหรือไม่ -->
+                    <div class="no-tickets">
+                        <p>No tickets</p> <!-- เปลี่ยนข้อความที่นี่ -->
+                    </div>
+                <% } else { %>
+                    <% tickets.forEach(ticket => { %>
+                        <div class="ticket-item">
+                            <a href="#"><%= ticket.title %></a>
+                            <a href="#"><span><%= new Date(ticket.created_at).toLocaleDateString() %></span></a>
+                            <a href="#"><span><%= new Date(ticket.display_updated_at).toLocaleString() %></span></a>
+                            <a href="#"><span><%= ticket.status %></span></a>
+                        </div>                        
+                    <% }); %>
+                <% } %>
             </div>
             <div class="pagination">
-                <button>Previous</button>
-                <button>Next</button>
+                <% if (currentPage > 1) { %>
+                    <a href="/user/tickets?page=<%= currentPage - 1 %>">Previous</a>
+                <% } %>
+                <% if (currentPage < totalPages) { %>
+                    <a href="/user/tickets?page=<%= currentPage + 1 %>">Next</a>
+                <% } %>
             </div>
         </div>
     </div>

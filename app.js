@@ -25,8 +25,8 @@ const db = mysql.createConnection({
     host: 'localhost',
     user: 'root',
     password: '',
-    database: 'helpdeskDB'
-  });
+    database: 'helpdeskdb'
+});
 
 db.connect((err) => {
   if (err) throw err;
@@ -51,8 +51,8 @@ app.post('/login', (req, res) => {
   const { username, password } = req.body;
 
   // Query the database to check if the user exists
-  const query = 'SELECT * FROM user WHERE username = ? AND password = ?';
-  
+  const query = 'SELECT * FROM users WHERE username = ? AND password = ?';
+
   db.query(query, [username, password], (err, results) => {
     if (err) {
       console.error('Database query error:', err);
@@ -60,17 +60,23 @@ app.post('/login', (req, res) => {
     }
 
     if (results.length > 0) {
-      // User exists; determine role and redirect accordingly
       const user = results[0];
       
       // Set user session based on role from database
-      req.session.user = { role: user.role, username: user.username };
-      
+      req.session.user = {
+        user_id: user.user_id,
+        username: user.username,
+        role: user.role
+      };
+
+      // ตรวจสอบว่าข้อมูล session ถูกตั้งค่า
+      console.log('Session after login:', req.session);
+
       // Redirect to the appropriate dashboard
       if (user.role === 'admin') {
-        return res.redirect('/admin/dashboard');
+        return res.redirect('/admin/userList');
       } else if (user.role === 'staff') {
-        return res.redirect('/staff/dashboard');
+        return res.redirect('/staff/tickets');
       } else if (user.role === 'user') {
         return res.redirect('/user/tickets');
       }
@@ -80,6 +86,7 @@ app.post('/login', (req, res) => {
     }
   });
 });
+
 
 app.get('/register', (req, res) => {
     res.render('register');
@@ -94,7 +101,7 @@ app.post('/register', (req, res) => {
     }
 
     // Check if the username or email already exists
-    const checkQuery = 'SELECT * FROM user WHERE username = ? OR email = ?';
+    const checkQuery = 'SELECT * FROM users WHERE username = ? OR email = ?';
     db.query(checkQuery, [username, email], (err, results) => {
         if (err) {
             console.error('Database query error:', err);
@@ -105,8 +112,8 @@ app.post('/register', (req, res) => {
             return res.render('register', { error: 'Username or email already exists' });
         }
 
-        // Insert the new user into the database
-        const query = 'INSERT INTO user (username, email, password, role) VALUES (?, ?, ?, ?)';
+        // Insert the new user into the database without hashing the password
+        const query = 'INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)';
         db.query(query, [username, email, password, 'user'], (err, results) => {
             if (err) {
                 console.error('Database insertion error:', err);
@@ -118,8 +125,6 @@ app.post('/register', (req, res) => {
         });
     });
 });
-
-
 
 app.listen(3000, () => {
   console.log('Server is running on port 3000');
