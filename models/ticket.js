@@ -41,6 +41,14 @@ const Ticket = {
     db.query(sql, [ticketId], (err, result) => {
       callback(err, result[0]);
     });
+  },
+
+  // New delete method
+  delete: (ticketId, callback) => {
+    const sql = 'DELETE FROM tickets WHERE id = ?';
+    db.query(sql, [ticketId], (err, result) => {
+      callback(err, result);
+    });
   }
 };
 

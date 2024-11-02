@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="/css/style_status.css">
+    <title><%= priority.charAt(0).toUpperCase() + priority.slice(1) %> Tickets</title>
+</head>
+<body>
+  <div class="container">
+    <div class="sidebar">
+        <div>
+            <h1>HELPDESK</h1>
+            <h3>General</h3>
+            <ul>
+              <li><a href="/admin/dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+              <li><a href="/admin/tickets"><i class="fas fa-ticket-alt"></i> Tickets</a></li>
+              <li><a href="/admin/search"><i class="fas fa-search"></i> Search</a></li>
+            </ul>
+            <hr>
+            <h3>Administration</h3>
+            <ul>
+              <li><a href="/admin/status"><i class="fas fa-tasks"></i> Status</a></li>
+              <li class="active"><a href="/admin/queue"><i class="fas fa-user-clock"></i> Queue</a></li>
+              <li><a href="/admin/userList"><i class="fas fa-users"></i> Users</a></li>
+            </ul>
+        </div>
+        <div class="profile">
+            <a href="#"><i class="fas fa-user-circle"></i></a>
+        </div>
+    </div>
+    <div class="content">
+        <div class="header">
+            <h2><%= priority.charAt(0).toUpperCase() + priority.slice(1) %> Tickets</h2>
+        </div>
+        <!-- Search Form -->
+        <div class="search-bar">
+            <form method="GET" action="/admin/queue/<%= priority %>" class="search-form">
+                <input type="text" name="search" placeholder="Search by ticket title" value="<%= searchQuery %>" />
+                <button type="submit">Search</button>
+            </form>
+        </div>
+        <!-- Check if there are tickets -->
+        <% if (tickets.length === 0) { %>
+            <div class="no-tickets">
+                <p>No tickets found for this priority.</p>
+            </div>
+        <% } else { %>
+            <ul>
+                <% tickets.forEach(ticket => { %>
+                    <li>
+                        <div class="title">
+                            <a href="/admin/tickets/<%= ticket.ticket_id %>"><%= ticket.title %></a>
+                        </div>
+                        <p><%= ticket.description %></p>
+                        <h4>Status: <%= ticket.status %></h4>
+                    </li>
+                    <hr>
+                <% }) %>
+            </ul>
+        <% } %>
+    </div>
+  </div>
+</body>
+</html>

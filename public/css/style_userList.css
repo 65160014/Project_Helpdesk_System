@@ -1,0 +1,295 @@
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+.container {
+    display: flex;
+    height: 100vh;
+}
+.sidebar {
+    width: 200px;
+    border-right: 1px solid #000;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+.sidebar h1 {
+    font-size: 24px;
+    margin: 0 0 20px 0;
+}
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+}
+.sidebar ul li {
+    margin-bottom: 10px;
+}
+.sidebar ul li a {
+    text-decoration: none;
+    color: #000;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+}
+.sidebar ul li a i {
+    margin-right: 10px;
+    font-size: 22px;
+}
+.sidebar ul li.active a {
+    font-weight: bold;
+    background-color: #f0f0f0;
+    padding: 5px;
+    border-radius: 5px;
+}
+.profile {
+    font-size: 36px;
+    text-align: center;
+}
+.content {
+    flex-grow: 1;
+    padding: 20px;
+}
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #000;
+    padding-bottom: 10px;
+}
+.header h2 {
+    font-size: 24px;
+    margin: 0;
+}
+
+.header .new-user {
+    border: 1px solid #000;
+    padding: 5px 10px;
+    text-decoration: none;
+    color: #000;
+    font-size: 18px;
+}
+
+/* Button styles */
+.form-group button {
+    background-color: #007bff; /* Bootstrap primary color */
+    color: white; /* White text color */
+    border: none; /* No border */
+    padding: 10px 15px; /* Padding around the button */
+    border-radius: 4px; /* Rounded corners */
+    cursor: pointer; /* Pointer cursor */
+    font-size: 16px; /* Font size */
+    transition: background-color 0.3s; /* Transition for background color */
+}
+
+/* Button hover styles */
+.form-group button:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+}
+
+/* Style for the disabled button */
+.form-group button[disabled] {
+    background-color: #ccc; /* Gray background for disabled buttons */
+    cursor: not-allowed; /* Not-allowed cursor */
+}
+
+/* Button container for alignment */
+.form-group button + button {
+    margin-left: 10px; /* Space between buttons */
+}
+
+
+.search-bar {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    margin-top: 20px;
+}
+.search-bar input[type="text"] {
+    width: 300px;
+    padding: 5px;
+    margin-right: 10px;
+    border: 1px solid #000;
+}
+.search-bar button {
+    padding: 5px 10px;
+    border: 1px solid #000;
+    background-color: #fff;
+    cursor: pointer;
+}
+
+.user-list {
+    border: 1px solid #000;
+    padding: 10px;
+}
+.user-header {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    border-bottom: 1px solid #000;
+    font-weight: bold;
+}
+.user-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    border-bottom: 1px solid #000;
+}
+.user-item:last-child {
+    border-bottom: none;
+}
+.user-item a {
+    text-decoration: none;
+    color: #000;
+    flex-grow: 1;
+}
+.user-item span {
+    margin-left: 20px;
+}
+
+.user-header, .user-item {
+    display: grid;
+    grid-template-columns: 0.2fr 0.5fr 0.5fr 0.2fr; /* Adjust these values based on your preferred column widths */
+    text-align: left;
+    padding: 10px;
+}
+
+.user-header {
+    font-weight: bold;
+    border-bottom: 1px solid #000;
+}
+
+.user-item a, .user-header span {
+    padding-left: 10px;
+}
+
+.user-item a {
+    color: #000;
+}
+
+
+.pagination {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 20px;
+}
+.pagination button {
+    border: 1px solid #000;
+    padding: 5px 10px;
+    background: none;
+    cursor: pointer;
+    font-size: 18px;
+}
+
+a {
+    text-decoration: none;
+    color: #000;
+}
+
+
+.header .return-button {
+    border: 1px solid #000;
+    padding: 5px 10px;
+    background: none;
+    cursor: pointer;
+    font-size: 18px;
+}
+.role-user-list {
+    list-style: none;
+    padding: 0;
+}
+.role-user-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid #000;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+.role-user-list li .priority {
+    display: flex;
+    align-items: center;
+}
+.role-user-list li .priority a {
+    text-decoration: none;
+    color: #000;
+    margin-left: 10px;
+}
+.role-user-list li .priority a:hover {
+    text-decoration: underline;
+}
+
+.no-users {
+    color: red;
+}
+
+.content .title a {
+    font-size: 25px;
+}
+
+.form-group {
+    margin-bottom: 15px; /* Space between form groups */
+    margin-top: 20px;
+}
+
+/* Label styles */
+label {
+    display: block; /* Block display for labels */
+    margin-bottom: 5px; /* Space below labels */
+    font-weight: bold; /* Bold text for labels */
+    color: #555; /* Medium gray color */
+}
+
+/* Input and select styles */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+select {
+    width: 100%; /* Full width */
+    padding: 10px; /* Padding inside the inputs */
+    border: 1px solid #ccc; /* Light gray border */
+    border-radius: 4px; /* Rounded corners */
+    font-size: 16px; /* Font size */
+    box-sizing: border-box; /* Include padding in width calculation */
+    transition: border-color 0.3s; /* Transition for border color */
+}
+
+/* Input focus styles */
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+select:focus {
+    border-color: #007bff; /* Change border color on focus */
+    outline: none; /* Remove outline */
+}
+
+
+/* Add some responsive styles */
+@media (max-width: 600px) {
+    .container {
+        padding: 15px; /* Reduce padding on smaller screens */
+    }
+
+    button {
+        width: 100%; /* Full-width buttons on small screens */
+        margin-top: 10px; /* Space above buttons */
+    }
+}
+
+#togglePassword {
+    background-color: transparent; /* Transparent background */
+    border: none; /* No border */
+    cursor: pointer; /* Pointer cursor */
+}
+
+#togglePassword i {
+    font-size: 20px; /* Adjust icon size */
+    color: #007bff; /* Color of the icon */
+    transition: color 0.3s; /* Transition for color change */
+}
+
+#togglePassword:hover i {
+    color: #0056b3; /* Darker color on hover */
+}

@@ -3,58 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Users - Helpdesk System</title>
-    <link rel="stylesheet" href="/public/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="/css/style_userList.css">
+    <title>User List</title>
 </head>
 <body>
-    <header>
-        <h1>Manage Users</h1>
-        <nav>
+  <div class="container">
+    <div class="sidebar">
+        <div>
+            <h1>HELPDESK</h1>
+            <h3>General</h3>
             <ul>
-                <li><a href="/admin/userList">Users</a></li>
-                <li><a href="/logout">Logout</a></li>
+              <li><a href="/admin/dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+              <li><a href="/admin/tickets"><i class="fas fa-ticket-alt"></i> Tickets</a></li>
+              <li><a href="/admin/search"><i class="fas fa-search"></i> Search</a></li>
             </ul>
-        </nav>
-    </header>
-
-    <main>
-        <h2>Users List</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Username</th>
-                    <th>Role</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <% users.forEach(user => { %>
-                <tr>
-                    <td><%= user.id %></td>
-                    <td><%= user.username %></td>
-                    <td><%= user.role %></td>
-                    <td>
-                        <form action="/admin/users/edit/<%= user.id %>" method="POST">
-                            <select name="role">
-                                <option value="user" <%= user.role === 'user' ? 'selected' : '' %>>User</option>
-                                <option value="staff" <%= user.role === 'staff' ? 'selected' : '' %>>Staff</option>
-                                <option value="admin" <%= user.role === 'admin' ? 'selected' : '' %>>Admin</option>
-                            </select>
-                            <button type="submit" class="btn">Update</button>
-                        </form>
-                        <form action="/admin/users/delete/<%= user.id %>" method="POST">
-                            <button type="submit" class="btn">Delete</button>
-                        </form>
-                    </td>
-                </tr>
-                <% }) %>
-            </tbody>
-        </table>
-    </main>
-
-    <footer>
-        <p>&copy; 2024 Helpdesk System</p>
-    </footer>
+            <hr>
+            <h3>Administration</h3>
+            <ul>
+              <li><a href="/admin/status"><i class="fas fa-tasks"></i> Status</a></li>
+              <li><a href="/admin/queue"><i class="fas fa-user-clock"></i> Queue</a></li>
+              <li class="active"><a href="/admin/userList"><i class="fas fa-users"></i> Users</a></li>
+            </ul>
+        </div>
+        <div class="profile">
+            <a href="#"><i class="fas fa-user-circle"></i></a>
+        </div>
+    </div>
+    <div class="content">
+        <div class="header">
+            <h2>User List</h2>
+            <a href="/admin/newUser" class="new-user">New User</a>
+        </div>
+        <ul class="role-user-list">
+            <li>
+                <div class="role">
+                    <a href="/admin/role/all">All (<%= userCounts.all %>)</a>
+                </div>
+                <div>▶</div>
+            </li>
+            <li>
+                <div class="role">
+                    <a href="/admin/role/admin">Admin (<%= userCounts.admin %>)</a>
+                </div>
+                <div>▶</div>
+            </li>
+            <li>
+                <div class="role">
+                    <a href="/admin/role/staff">Staff (<%= userCounts.staff %>)</a>
+                </div>
+                <div>▶</div>
+            </li>
+            <li>
+                <div class="role">
+                    <a href="/admin/role/user">User (<%= userCounts.user %>)</a>
+                </div>
+                <div>▶</div>
+            </li>
+        </ul>
+               
+    </div>
+  </div>
 </body>
 </html>

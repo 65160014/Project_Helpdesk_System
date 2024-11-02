@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tickets - Helpdesk System</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <link rel="stylesheet" href="/css/style_tickets_staff.css">
+    <link rel="stylesheet" href="/css/style_tickets_admin.css">
 </head>
 <body>
     <div class="container">
@@ -23,7 +23,7 @@
                 <ul>
                   <li><a href="/admin/status"><i class="fas fa-tasks"></i> Status</a></li>
                   <li><a href="/admin/queue"><i class="fas fa-user-clock"></i> Queue</a></li>
-                  <li><a href="/admin/users"><i class="fas fa-users"></i> Users</a></li>
+                  <li><a href="/admin/userList"><i class="fas fa-users"></i> Users</a></li>
               </ul>
             </div>
             <div class="profile">
@@ -60,21 +60,34 @@
                     <span>SUBJECT</span>
                     <span>QUEUE</span>
                     <span>STATUS</span>
+                    <span>AGENT</span>
                     <span>UPDATED AT</span>
                 </div>
     
-                <% if (tickets.length === 0) { %> <!-- ตรวจสอบว่ามีตั๋วหรือไม่ -->
+                <% if (tickets.length === 0) { %>
                     <div class="no-tickets">
-                        <p>No tickets</p> <!-- เปลี่ยนข้อความที่นี่ -->
+                        <p>No tickets</p>
                     </div>
                 <% } else { %>
                     <% tickets.forEach(ticket => { %>
                         <div class="ticket-item">
-                            <a href="#"></a>
-                            <a href="#"><span><%= ticket.title %> </span></a>
-                            <a href="#"><span></span></a>
-                            <a href="#"><%= ticket.status %></a>
-                            <a href="#"><%= new Date(ticket.display_updated_at).toLocaleString() %></a>
+                            <!-- Display username and email as a mailto link -->
+                            <a href="mailto:<%= ticket.email %>"><%= ticket.username %> - <%= ticket.email %></a>
+                            
+                            <!-- Link to ticket details by ticket_id -->
+                            <a href="/admin/tickets/<%= ticket.ticket_id %>"><%= ticket.title %></a>
+                            
+                            <!-- Display queue priority and name -->
+                            <a href="/admin/tickets/<%= ticket.ticket_id %>"><%= ticket.priority || '-' %></a>
+                            
+                            <!-- Display ticket status -->
+                            <a href="/admin/tickets/<%= ticket.ticket_id %>"><%= ticket.status %></a>
+                            
+                            <!-- Display agent name -->
+                            <a href="/admin/tickets/<%= ticket.ticket_id %>"><%= ticket.agent_name || '-' %></a>
+                            
+                            <!-- Display formatted updated_at date -->
+                            <a href="/admin/tickets/<%= ticket.ticket_id %>"><%= new Date(ticket.display_updated_at).toLocaleString() %></a>
                         </div>                        
                     <% }); %>
                 <% } %>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="/css/style_userList.css">
+    <title>Users by Role</title>
+</head>
+<body>
+  <div class="container">
+    <div class="sidebar">
+        <div>
+            <h1>HELPDESK</h1>
+            <h3>General</h3>
+            <ul>
+              <li><a href="/admin/dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+              <li><a href="/admin/tickets"><i class="fas fa-ticket-alt"></i> Tickets</a></li>
+              <li><a href="/admin/search"><i class="fas fa-search"></i> Search</a></li>
+            </ul>
+            <hr>
+            <h3>Administration</h3>
+            <ul>
+              <li><a href="/admin/status"><i class="fas fa-tasks"></i> Status</a></li>
+              <li><a href="/admin/queue"><i class="fas fa-user-clock"></i> Queue</a></li>
+              <li class="active"><a href="/admin/userList"><i class="fas fa-users"></i> Users</a></li>
+            </ul>
+        </div>
+        <div class="profile">
+            <a href="#"><i class="fas fa-user-circle"></i></a>
+        </div>
+    </div>
+    <div class="content">
+        <div class="header">
+            <h2>Users List</h2>
+        </div>
+        <h2>Users with : <%= displayRole %></h2>   
+        <!-- Add search form -->
+        <div class="search-bar">
+            <form action="/admin/searchUser" method="GET">
+                <input type="text" name="username" placeholder="Search by username..." required>
+                <button type="submit"><i class="fas fa-search"></i> Search</button>
+            </form>     
+        </div>
+        <div class="user-list">
+            <div class="user-header">
+                <span>User ID</span>
+                <span>Username</span>
+                <span>Email</span>
+                <span>Role</span>
+            </div>
+            <% if (users.length === 0) { %>
+                <div class="no-tickets">
+                    <p>No user found for this role.</p>
+                </div>
+            <% } else { %>
+                <% users.forEach(user => { %>
+                    <div class="user-item">
+                        <a href="/admin/users/<%= user.user_id %>"><%= user.user_id %></a>
+                        <a href="/admin/users/<%= user.user_id %>"><%= user.username %></a>
+                        <a href="mailto:<%= user.email %>"><%= user.email %></a>
+                        <a href="/admin/users/<%= user.user_id %>"><%= user.role %></a>
+                    </div>
+                <% }) %>
+            <% } %>
+        </div>
+    </div>
+  </div>
+</body>
+</html>

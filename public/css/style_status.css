@@ -63,35 +63,26 @@ body {
     font-size: 24px;
     margin: 0;
 }
-.header .new-ticket {
-    border: 1px solid #000;
-    padding: 5px 10px;
-    text-decoration: none;
-    color: #000;
-    font-size: 18px;
-}
+
 .search-bar {
     display: flex;
     align-items: center;
-    border: 1px solid #000;
+    margin-bottom: 20px;
+    margin-top: 20px;
+}
+.search-bar input[type="text"] {
+    width: 300px;
     padding: 5px;
-    margin: 20px 0;
-}
-.search-bar input {
-    border: none;
-    outline: none;
-    flex-grow: 1;
-    font-size: 18px;
-}
-.search-bar select {
-    border: none;
-    outline: none;
-    font-size: 18px;
-}
-.search-bar i {
     margin-right: 10px;
-    font-size: 18px;
+    border: 1px solid #000;
 }
+.search-bar button {
+    padding: 5px 10px;
+    border: 1px solid #000;
+    background-color: #fff;
+    cursor: pointer;
+}
+
 .ticket-list {
     border: 1px solid #000;
     padding: 10px;
@@ -168,11 +159,11 @@ a {
     cursor: pointer;
     font-size: 18px;
 }
-.queue-list {
+.status-list {
     list-style: none;
     padding: 0;
 }
-.queue-list li {
+.status-list li {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -180,20 +171,23 @@ a {
     padding: 10px;
     margin-bottom: 10px;
 }
-.queue-list li .priority {
+.status-list li .priority {
     display: flex;
     align-items: center;
 }
-.queue-list li .priority a {
+.status-list li .priority a {
     text-decoration: none;
     color: #000;
     margin-left: 10px;
 }
-.queue-list li .priority a:hover {
+.status-list li .priority a:hover {
     text-decoration: underline;
 }
 
 .no-tickets {
     color: red;
-    text-align: center;
+}
+
+.content .title a {
+    font-size: 25px;
 }

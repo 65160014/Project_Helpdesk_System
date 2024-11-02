@@ -48,10 +48,11 @@ body {
     font-size: 36px;
     text-align: center;
 }
-.content {
-    flex-grow: 1;
-    padding: 20px;
+
+.profile i {
+    color: #000;
 }
+
 .header {
     display: flex;
     justify-content: space-between;
@@ -59,38 +60,47 @@ body {
     border-bottom: 1px solid #000;
     padding-bottom: 10px;
 }
-.header h1 {
-    font-size: 24px;
-    margin: 0;
+.content .header h2 {
+    font-size: 30px;
 }
 
-.search-section {
-    margin-top: 20px;
+.content {
+    flex-grow: 1;
+    padding: 20px;
 }
-.search-section h2 {
-    font-size: 18px;
-    margin: 0 0 10px 0;
+.content h2 {
+    font-size: 20px;
+    margin-bottom: 10px;
 }
-.search-section label {
-    display: block;
-    margin-bottom: 5px;
+.search-bar {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
 }
-.search-section input[type="text"] {
+.search-bar input[type="text"] {
+    width: 300px;
     padding: 5px;
-    width: 200px;
     margin-right: 10px;
+    border: 1px solid #000;
 }
-.search-section button {
+.search-bar button {
     padding: 5px 10px;
+    border: 1px solid #000;
+    background-color: #fff;
+    cursor: pointer;
 }
-.faq-section {
+.faq {
     margin-top: 20px;
 }
-.faq-section h3 {
-    font-size: 18px;
-    margin: 0 0 10px 0;
-}
-.faq-section ul {
-    list-style: disc;
+.faq ul {
+    list-style-type: disc;
     padding-left: 20px;
+}
+
+.faq p {
+    color: red;
+}
+
+.content a {
+    font-size: 18px;
 }

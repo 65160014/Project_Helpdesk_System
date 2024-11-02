@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Staff - Helpdesk System</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+    <div class="container">
+        <h1>Select Staff for Ticket #<%= ticketId %></h1>
+        <label for="staffSelect">Choose a staff member:</label>
+        <select id="staffSelect">
+            <option value="">--Select Staff--</option> <!-- Placeholder option -->
+            <% staffList.forEach(staff => { %>
+                <option value="<%= staff.staff_id %>"><%= staff.name %></option>
+            <% }); %>
+        </select>
+        <button onclick="assignStaff()">Assign Staff</button> <!-- Moved button outside the select -->
+        <a href="/admin/tickets/<%= ticketId %>" class="back-link">Back to Tickets</a>
+    </div>
+
+    <script>
+        function assignStaff() {
+            const ticketId = '<%= ticketId %>';
+            const staffId = document.getElementById('staffSelect').value; // Get selected staff ID
+
+            if (!staffId) {
+                alert('Please select a staff member.');
+                return;
+            }
+
+            fetch(`/admin/tickets/${ticketId}/assign-staff`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ staff_id: staffId })
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert('Staff assigned successfully!');
+                    window.location.href = '/admin/tickets'; // Redirect back to tickets
+                } else {
+                    alert('Failed to assign staff. Please try again.');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    </script>
+
+</body>
+</html>

@@ -4,12 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <link rel="stylesheet" href="/css/style_tickets_staff.css">
-    <title>Dashboard</title>
+    <link rel="stylesheet" href="/css/style_dashboard.css">
+    <title>Tickets</title>
 </head>
 <body>
-  <div class="container">
-    <div class="sidebar">
+    <div class="container">
+      <div class="sidebar">
         <div>
             <h1>HELPDESK</h1>
             <h3>General</h3>
@@ -30,10 +30,59 @@
             <a href="#"><i class="fas fa-user-circle"></i></a>
         </div>
     </div>
-    <div class="content">
-      <h1>Welcome, Admin</h1>
-      <p>This is the admin dashboard.</p>
+
+        <div class="content">
+            <div class="header">
+                <h1>Dashboard</h1>
+                <a href="/admin/report/add" class="new-report">New Report</a>
+            </div>
+
+            <!-- Tabs สำหรับเลือกช่วงเวลา -->
+            <div class="tabs">
+                <button onclick="changePeriod('daily')" class="<%= period === 'daily' ? 'active' : '' %>">Daily</button>
+                <button onclick="changePeriod('weekly')" class="<%= period === 'weekly' ? 'active' : '' %>">Weekly</button>
+                <button onclick="changePeriod('monthly')" class="<%= period === 'monthly' ? 'active' : '' %>">Monthly</button>
+            </div>
+
+            <!-- แสดงข้อมูลสถิติตั๋ว -->
+            <div class="stats">
+                <div class="stat">
+                    <h3>New Tickets</h3>
+                    <p><%= newTickets %></p>
+                </div>
+                <div class="stat">
+                    <h3>Pending Tickets</h3>
+                    <p><%= pendingTickets %></p>
+                </div>
+                <div class="stat">
+                    <h3>Resolved Tickets</h3> <!-- แสดง Resolved Tickets -->
+                    <p><%= resolvedTickets %></p>
+                </div>
+                <div class="stat">
+                    <h3>Closed Tickets</h3>
+                    <p><%= closedTickets %></p>
+                </div>
+            </div>
+            <!-- แสดงข้อมูลรายงาน -->
+          <div class="reports">
+            <h2>Reports</h2>
+            <ul>
+                <% reports.forEach(report => { %>
+                    <li>
+                        <a href="/admin/report/<%= report.report_id %>"><%= report.title %></a>
+                    </li>
+                <% }); %>
+            </ul>
+          </div>
+
+        </div>
     </div>
-  </div>
+
+    <script>
+        // ฟังก์ชันสำหรับเปลี่ยนช่วงเวลา
+        function changePeriod(period) {
+            window.location.href = `/admin/dashboard?period=${period}`;
+        }
+    </script>
 </body>
 </html>

@@ -5,6 +5,7 @@ const path = require('path');
 const mysql = require('mysql2');
 
 const app = express();
+app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -74,7 +75,7 @@ app.post('/login', (req, res) => {
 
       // Redirect to the appropriate dashboard
       if (user.role === 'admin') {
-        return res.redirect('/admin/userList');
+        return res.redirect('/admin/dashboard');
       } else if (user.role === 'staff') {
         return res.redirect('/staff/tickets');
       } else if (user.role === 'user') {
