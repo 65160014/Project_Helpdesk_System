@@ -21,11 +21,11 @@ router.post('/tickets/:ticket_id/assign-staff', checkAdminRole, adminController.
 router.get('/status/:status', checkAdminRole, adminController.getTicketsByStatus);
 router.get('/queue/:priority', checkAdminRole, adminController.getTicketsByPriority);
 
-// Route to display the list of FAQs
-router.get('/search', checkAdminRole, adminController.getFaqList);
-// Route to display a single FAQ detail by ID
-router.get('/search/:id', checkAdminRole, adminController.getFaqDetail);
-router.get('/searchbar', checkAdminRole, adminController.searchFaqs);
+// // Route to display the list of FAQs
+// router.get('/search', checkAdminRole, adminController.getFaqList);
+// // Route to display a single FAQ detail by ID
+// router.get('/search/:id', checkAdminRole, adminController.getFaqDetail);
+// router.get('/searchbar', checkAdminRole, adminController.searchFaqs);
 
 router.get('/status', checkAdminRole, adminController.status);
 router.get('/queue', checkAdminRole, adminController.queue);

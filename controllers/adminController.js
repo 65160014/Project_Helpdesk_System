@@ -467,46 +467,46 @@ exports.assignStaffToTicket = (req, res) => {
 
 // controllers/faqController.js
 
-exports.getFaqList = (req, res) => {
-  const query = 'SELECT knowledge_base_id, title FROM knowledgebase';
-  db.query(query, (err, results) => {
-    if (err) {
-      console.error('Error fetching FAQ list:', err);
-      return res.status(500).send('Server error');
-    }
-    // เพิ่ม searchTerm เป็นค่าว่าง เพื่อป้องกัน error ใน view
-    res.render('admin/faq', { faqs: results, searchTerm: '' });
-  });
-};
+// exports.getFaqList = (req, res) => {
+//   const query = 'SELECT knowledge_base_id, title FROM knowledgebase';
+//   db.query(query, (err, results) => {
+//     if (err) {
+//       console.error('Error fetching FAQ list:', err);
+//       return res.status(500).send('Server error');
+//     }
+//     // เพิ่ม searchTerm เป็นค่าว่าง เพื่อป้องกัน error ใน view
+//     res.render('admin/faq', { faqs: results, searchTerm: '' });
+//   });
+// };
 
 
-// Function to get the details of a single FAQ by ID
-exports.getFaqDetail = (req, res) => {
-  const faqId = parseInt(req.params.id, 10);
-  const query = 'SELECT title, content FROM knowledgebase WHERE knowledge_base_id = ?';
-  db.query(query, [faqId], (err, results) => {
-    if (err) {
-      console.error('Error fetching FAQ detail:', err);
-      return res.status(500).send('Server error');
-    }
-    if (results.length === 0) {
-      return res.status(404).send('FAQ not found');
-    }
-    res.render('admin/faqDetail', { faq: results[0] });
-  });
-};
+// // Function to get the details of a single FAQ by ID
+// exports.getFaqDetail = (req, res) => {
+//   const faqId = parseInt(req.params.id, 10);
+//   const query = 'SELECT title, content FROM knowledgebase WHERE knowledge_base_id = ?';
+//   db.query(query, [faqId], (err, results) => {
+//     if (err) {
+//       console.error('Error fetching FAQ detail:', err);
+//       return res.status(500).send('Server error');
+//     }
+//     if (results.length === 0) {
+//       return res.status(404).send('FAQ not found');
+//     }
+//     res.render('admin/faqDetail', { faq: results[0] });
+//   });
+// };
 
-exports.searchFaqs = (req, res) => {
-  const searchTerm = req.query.search || '';
-  const query = `SELECT knowledge_base_id, title FROM knowledgebase WHERE title LIKE ?`;
-  db.query(query, [`%${searchTerm}%`], (err, results) => {
-    if (err) {
-      console.error('Error searching FAQs:', err);
-      return res.status(500).send('Server error');
-    }
-    res.render('admin/faq', { faqs: results, searchTerm });
-  });
-};
+// exports.searchFaqs = (req, res) => {
+//   const searchTerm = req.query.search || '';
+//   const query = `SELECT knowledge_base_id, title FROM knowledgebase WHERE title LIKE ?`;
+//   db.query(query, [`%${searchTerm}%`], (err, results) => {
+//     if (err) {
+//       console.error('Error searching FAQs:', err);
+//       return res.status(500).send('Server error');
+//     }
+//     res.render('admin/faq', { faqs: results, searchTerm });
+//   });
+// };
 
 exports.status = (req, res) => {
     res.render('admin/status');
