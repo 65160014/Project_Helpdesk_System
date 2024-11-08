@@ -26,6 +26,7 @@
         <div class="content">
             <div class="header">
                 <h1>Dashboard</h1>
+                <a href="/user/report/add" class="new-report">New Report</a>
             </div>
 
             <!-- Tabs สำหรับเลือกช่วงเวลา -->
@@ -42,25 +43,37 @@
                     <p><%= newTickets %></p>
                 </div>
                 <div class="stat">
-                    <h3>Open Tickets</h3>
-                    <p><%= openTickets %></p>
-                </div>
-                <div class="stat">
                     <h3>Pending Tickets</h3>
                     <p><%= pendingTickets %></p>
+                </div>
+                <div class="stat">
+                    <h3>Resolved Tickets</h3> <!-- แสดง Resolved Tickets -->
+                    <p><%= resolvedTickets %></p>
                 </div>
                 <div class="stat">
                     <h3>Closed Tickets</h3>
                     <p><%= closedTickets %></p>
                 </div>
             </div>
+            <!-- แสดงข้อมูลรายงาน -->
+          <div class="reports">
+            <h2>Reports</h2>
+            <ul>
+                <% reports.forEach(report => { %>
+                    <li>
+                        <a href="/user/report/<%= report.report_id %>"><%= report.title %></a>
+                    </li>
+                <% }); %>
+            </ul>
+          </div>
+
         </div>
     </div>
 
     <script>
         // ฟังก์ชันสำหรับเปลี่ยนช่วงเวลา
         function changePeriod(period) {
-            window.location.href = `/admin/dashboard?period=${period}`;
+            window.location.href = `/user/dashboard?period=${period}`;
         }
     </script>
 </body>

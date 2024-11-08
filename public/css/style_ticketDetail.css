@@ -49,6 +49,11 @@ body {
     font-size: 36px;
     text-align: center;
 }
+
+.sidebar .profile i{
+    color: #000;
+}
+
 .content {
     flex: 1;
     padding: 20px;

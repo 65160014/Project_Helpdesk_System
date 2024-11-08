@@ -19,7 +19,7 @@
                 </ul>
             </div>
             <div class="profile">
-                <a href="#"><i class="fas fa-user-circle"></i></a>
+                <a href="/profileRoutes/profile"><i class="fas fa-user-circle"></i></a>
             </div>
         </div>
         <div class="content">
@@ -27,17 +27,22 @@
                 <h2>My tickets</h2>
                 <a href="/user/newTickets" class="new-ticket">New ticket</a>
             </div>
+            
+            <form method="GET" action="/user/tickets">
             <div class="search-bar">
-                <i class="fas fa-search"></i>
-                <input type="text" placeholder="Search">
-                <select>
-                    <option>All requests</option>
-                    <option>Open</option>
-                    <option>Pending</option>
-                    <option>Resolved</option>
-                    <option>Closed</option>
-                </select>
-            </div>
+                    <i class="fas fa-search"></i>
+                    <input type="text" name="search" id="searchInput" placeholder="Search" value="<%= searchTerm %>">
+                    <select name="status" id="statusSelect">
+                        <option value="all" <%= status === 'all' ? 'selected' : '' %>>All requests</option>
+                        <option value="open" <%= status === 'open' ? 'selected' : '' %>>Open</option>
+                        <option value="pending" <%= status === 'pending' ? 'selected' : '' %>>Pending</option>
+                        <option value="resolved" <%= status === 'resolved' ? 'selected' : '' %>>Resolved</option>
+                        <option value="closed" <%= status === 'closed' ? 'selected' : '' %>>Closed</option>
+                    </select>
+                </div>
+                </form>
+           
+            
             <div class="ticket-list">
                 <div class="ticket-header">
                     <span>SUBJECT</span>
@@ -53,10 +58,10 @@
                 <% } else { %>
                     <% tickets.forEach(ticket => { %>
                         <div class="ticket-item">
-                            <a href="#"><%= ticket.title %></a>
-                            <a href="#"><span><%= new Date(ticket.created_at).toLocaleDateString() %></span></a>
-                            <a href="#"><span><%= new Date(ticket.display_updated_at).toLocaleString() %></span></a>
-                            <a href="#"><span><%= ticket.status %></span></a>
+                            <a href="/user/tickets/<%= ticket.ticket_id %>"><%= ticket.title %></a>
+                            <a href="/user/tickets/<%= ticket.ticket_id %>"><span><%= new Date(ticket.created_at).toLocaleDateString() %></span></a>
+                            <a href="/user/tickets/<%= ticket.ticket_id %>"><span><%= new Date(ticket.display_updated_at).toLocaleString() %></span></a>
+                            <a href="/user/tickets/<%= ticket.ticket_id %>"><span><%= ticket.status %></span></a>
                         </div>                        
                     <% }); %>
                 <% } %>

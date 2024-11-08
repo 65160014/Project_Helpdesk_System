@@ -13,9 +13,9 @@
             <div>
                 <h1>HELPDESK</h1>
                 <ul>
-                    <li class="active"><a href="/staff/tickets"><i class="fas fa-ticket-alt"></i> Tickets</a></li>
-                    <li><a href="/staff/status"><i class="fas fa-tasks"></i> Status</a></li>
-                    <li><a href="/staff/queue"><i class="fas fa-user-clock"></i> Queue</a></li>
+                    <li class="active"><a href="/staff/assigned-tickets"><i class="fas fa-ticket-alt"></i> Tickets</a></li>
+                    <li><a href="/staff/tickets/status"><i class="fas fa-tasks"></i> Status</a></li>
+                    <li><a href="/staff/tickets/queue"><i class="fas fa-user-clock"></i> Queue</a></li>
                 </ul>
             </div>
             <div class="profile">
@@ -23,55 +23,64 @@
             </div>
         </div>
 
-    <div class="content">
+        <div class="content">
 
-        <div class="header">
-            <h2>Tickets</h2>
-            <div class="filter-sort">
-                <select>
-                    <option>All requests</option>
-                    <option>Open</option>
-                    <option>Pending</option>
-                    <option>Resolved</option>
-                    <option>Closed</option>
-                </select>
-                <select>
-                    <option>All requests</option>
-                    <option>Open</option>
-                    <option>Pending</option>
-                    <option>Resolved</option>
-                    <option>Closed</option>
-                </select>
-            </div>
-        </div>
-
-        
-
-        <div class="ticket-list">
-            <div class="ticket-header">
-                <span>USER</span>
-                <span>SUBJECT</span>
-                <span>QUEUE</span>
-                <span>STATUS</span>
-                <span>UPDATED AT</span>
-            </div>
-
-            <% if (tickets.length === 0) { %> <!-- ตรวจสอบว่ามีตั๋วหรือไม่ -->
-                <div class="no-tickets">
-                    <p>No tickets</p> <!-- เปลี่ยนข้อความที่นี่ -->
+            <div class="header">
+                <h2>Tickets</h2>
+                <div class="filter-sort">
+                    <select>
+                        <option>All requests</option>
+                        <option>Open</option>
+                        <option>Pending</option>
+                        <option>Resolved</option>
+                        <option>Closed</option>
+                    </select>
+                    <select>
+                        <option>All requests</option>
+                        <option>Open</option>
+                        <option>Pending</option>
+                        <option>Resolved</option>
+                        <option>Closed</option>
+                    </select>
                 </div>
-            <% } else { %>
-                <% tickets.forEach(ticket => { %>
-                    <div class="ticket-item">
-                        <a href="#"><%= ticket.title %></a>
-                        <a href="#"><span> </span></a>
-                        <a href="#"><span></span></a>
-                        <a href="#"><span></span></a>
-                        <a href="#"><span></span></a>
-                    </div>                        
-                <% }); %>
-            <% } %>
+            </div>
+    
+            
+    
+            <div class="ticket-list">
+                <div class="ticket-header">
+                    <span>USER</span>
+                    <span>SUBJECT</span>
+                    <span>QUEUE</span>
+                    <span>STATUS</span>
+                    <span>UPDATED AT</span>
+                </div>
+    
+                <% if (tickets.length === 0) { %>
+                    <div class="no-tickets">
+                        <p>No tickets</p>
+                    </div>
+                <% } else { %>
+                    <% tickets.forEach(ticket => { %>
+                        <div class="ticket-item">
+                            <!-- Display username and email as a mailto link -->
+                            <a href="mailto:<%= ticket.ticket_owner_email %>"><%= ticket.ticket_owner_username %> - <%= ticket.ticket_owner_email %></a>
+                            
+                            <!-- Link to ticket details by ticket_id -->
+                            <a href="/staff/ticket/<%= ticket.ticket_id %>"><%= ticket.title %></a>
+                            
+                            <!-- Display queue priority and name -->
+                            <a href="/staff/ticket/<%= ticket.ticket_id %>"><%= ticket.priority || '-' %></a>
+                            
+                            <!-- Display ticket status -->
+                            <a href="/staff/ticket/<%= ticket.ticket_id %>"><%= ticket.status %></a>
+                            
+                            <!-- Display formatted updated_at date -->
+                            <a href="/staff/ticket/<%= ticket.ticket_id %>"><%= new Date(ticket.display_updated_at).toLocaleString() %></a>
+                        </div>                        
+                    <% }); %>
+                <% } %>
+            </div>
         </div>
-    </div>
 </body>
 </html>

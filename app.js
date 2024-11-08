@@ -77,7 +77,7 @@ app.post('/login', (req, res) => {
       if (user.role === 'admin') {
         return res.redirect('/admin/dashboard');
       } else if (user.role === 'staff') {
-        return res.redirect('/staff/tickets');
+        return res.redirect('/staff/assigned-tickets');
       } else if (user.role === 'user') {
         return res.redirect('/user/tickets');
       }

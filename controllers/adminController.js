@@ -1,5 +1,4 @@
 const db = require('../config/db');
-const Ticket = require('../models/Ticket');
 
 // ฟังก์ชันเพื่อดึงข้อมูลตั๋วตามช่วงเวลา
 exports.getDashboard = (req, res) => {
@@ -462,8 +461,243 @@ exports.assignStaffToTicket = (req, res) => {
   });
 };
 
+exports.status = (req, res) => {
+  res.render('admin/status');
+};
+
+exports.getTicketsByStatus = (req, res) => {
+  const status = req.params.status;
+  const searchTerm = req.query.search || ''; // Get the search term from the query parameters
+  let query;
+  let params = [];
+
+  // Build the query based on status
+  switch (status) {
+      case 'open':
+          query = 'SELECT * FROM tickets WHERE status IN (?, ?) AND title LIKE ?';
+          params = ['New', 'Reopened', `%${searchTerm}%`];
+          break;
+      case 'pending':
+          query = 'SELECT * FROM tickets WHERE status IN (?, ?, ?) AND title LIKE ?';
+          params = ['In Progress', 'Pending', 'Assigned', `%${searchTerm}%`];
+          break;
+      case 'resolved':
+          query = 'SELECT * FROM tickets WHERE status = ? AND title LIKE ?';
+          params = ['Resolved', `%${searchTerm}%`];
+          break;
+      case 'closed':
+          query = 'SELECT * FROM tickets WHERE status = ? AND title LIKE ?';
+          params = ['Closed', `%${searchTerm}%`];
+          break;
+      default:
+          return res.status(400).send('Invalid status');
+  }
+
+  // Execute the query
+  db.query(query, params, (error, results) => {
+      if (error) {
+          console.error('Database query error:', error);
+          return res.status(500).send('Server Error');
+      }
+      res.render('admin/statusPage', { tickets: results, status, searchTerm }); // Pass searchTerm to the view
+  });
+};
+exports.getTicketsByPriority = (req, res) => {
+const priority = req.params.priority;
+const searchQuery = req.query.search || ''; // Get the search query from the request
+let queueId;
+
+// Map priority name to queue_id
+switch (priority) {
+    case 'low':
+        queueId = 1; // Assuming Low has queue_id 1
+        break;
+    case 'medium':
+        queueId = 2; // Assuming Medium has queue_id 2
+        break;
+    case 'high':
+        queueId = 3; // Assuming High has queue_id 3
+        break;
+    case 'urgent':
+        queueId = 4; // Assuming Urgent has queue_id 4
+        break;
+    default:
+        return res.status(400).send('Invalid priority');
+}
+
+// SQL query to get tickets with the selected queue_id and matching the search query
+const query = 'SELECT * FROM tickets WHERE queue_id = ? AND title LIKE ?';
+
+db.query(query, [queueId, `%${searchQuery}%`], (error, results) => {
+    if (error) {
+        console.error('Database query error:', error);
+        return res.status(500).send('Server Error');
+    }
+    res.render('admin/ticketsByPriority', { tickets: results, priority, searchQuery });
+});
+};
 
 
+
+exports.queue = (req, res) => {
+  res.render('admin/queue');
+};
+
+// Controller to get all users
+
+exports.getAllUsers = (req, res) => {
+const roles = ['all', 'admin', 'staff', 'user'];
+const counts = {};
+
+// Initialize counts for each role
+roles.forEach(role => {
+    counts[role] = 0;
+});
+
+// Query for each role's count
+const promises = roles.map(role => {
+    return new Promise((resolve, reject) => {
+        if (role === 'all') {
+            db.query('SELECT COUNT(*) AS count FROM users', (err, results) => {
+                if (err) return reject(err);
+                counts[role] = results[0].count;
+                resolve();
+            });
+        } else {
+            db.query('SELECT COUNT(*) AS count FROM users WHERE role = ?', [role], (err, results) => {
+                if (err) return reject(err);
+                counts[role] = results[0].count;
+                resolve();
+            });
+        }
+    });
+});
+
+Promise.all(promises)
+    .then(() => {
+        res.render('admin/userList', { userCounts: counts });
+    })
+    .catch(err => {
+        res.status(500).send(err);
+    });
+};
+
+
+// Controller to get users by role
+exports.getUsersByRole = (req, res) => {
+const role = req.params.role;
+let displayRole = 'All Role'; // Default display role
+
+if (role === 'all') {
+    // If the role is 'all', fetch all users
+    db.query('SELECT * FROM users', (err, results) => {
+        if (err) {
+            return res.status(500).send(err);
+        }
+        // Pass the displayRole variable to the template
+        res.render('admin/userbyrolePage', { users: results, displayRole });
+    });
+} else {
+    // Fetch users by specific role
+    db.query('SELECT * FROM users WHERE role = ?', [role], (err, results) => {
+        if (err) {
+            return res.status(500).send(err);
+        }
+        displayRole = role; // Set the display role to the specific role
+        res.render('admin/userbyrolePage', { users: results, displayRole });
+    });
+}
+};
+
+// Controller to search users by username
+exports.searchUser = (req, res) => {
+const username = req.query.username; // Get the username from the query
+
+// Query to find users by username (case insensitive)
+db.query('SELECT * FROM users WHERE username LIKE ?', [`%${username}%`], (err, results) => {
+    if (err) {
+        return res.status(500).send(err);
+    }
+    res.render('admin/userbyrolePage', { users: results, displayRole: 'Search Results' });
+});
+};
+
+
+// Controller to get a specific user by ID for editing
+exports.getUserById = (req, res) => {
+const userId = parseInt(req.params.userId, 10);
+
+db.query('SELECT * FROM users WHERE user_id = ?', [userId], (err, results) => {
+    if (err) {
+        return res.status(500).send(err);
+    }
+    if (results.length === 0) {
+        return res.status(404).send('User not found');
+    }
+    res.render('admin/editUser', { user: results[0] });
+});
+};
+
+// Controller to update user information
+exports.updateUser = (req, res) => {
+const userId = req.params.userId;
+const { username, email, password, role } = req.body; // Include role in the destructuring
+
+const sql = 'UPDATE users SET username = ?, email = ?, password = ?, role = ? WHERE user_id = ?';
+db.query(sql, [username, email, password, role, userId], (err, results) => {
+    if (err) {
+        return res.status(500).send(err);
+    }
+    res.redirect('/admin/userList'); // Redirect to the user list after updating
+});
+};
+
+// adminController.js
+
+exports.showNewUserForm = (req, res) => {
+// Render หน้า newUser โดยไม่ต้องมี error message
+res.render('admin/newUser', { error: null });
+};
+
+
+exports.createUser = (req, res) => {
+const { username, email, password, confirm_password, role } = req.body;
+
+// ตรวจสอบว่ารหัสผ่านตรงกันหรือไม่
+if (password !== confirm_password) {
+    return res.render('admin/newUser', { error: 'Passwords do not match' });
+}
+
+// สร้าง query สำหรับเพิ่มผู้ใช้ใหม่ในตาราง users
+const query = `
+    INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)
+`;
+db.query(query, [username, email, password, role], (err, results) => {
+    if (err) {
+        console.error(err);
+        return res.render('admin/newUser', { error: 'Failed to create user' });
+    }
+
+    // หาก role เป็น 'staff' ให้เพิ่มข้อมูลในตาราง staff
+    if (role === 'staff') {
+        const staffQuery = `
+            INSERT INTO staff (name, email) VALUES (?, ?)
+        `;
+        db.query(staffQuery, [username, email], (err) => {
+            if (err) {
+                console.error(err);
+                return res.render('admin/newUser', { error: 'Failed to create staff member' });
+            }
+            
+            // หากสำเร็จทั้งสองอย่าง ให้ redirect หรือแสดงข้อความสำเร็จ
+            res.redirect('/admin/userList'); // เปลี่ยนเส้นทางหลังจากสร้างผู้ใช้เสร็จ
+        });
+    } else {
+        // หากไม่ใช่ staff ให้ redirect หรือแสดงข้อความสำเร็จ
+        res.redirect('/admin/userList');
+    }
+});
+};
 
 // controllers/faqController.js
 
@@ -508,240 +742,3 @@ exports.assignStaffToTicket = (req, res) => {
 //   });
 // };
 
-exports.status = (req, res) => {
-    res.render('admin/status');
-  };
-
-exports.getTicketsByStatus = (req, res) => {
-    const status = req.params.status;
-    const searchTerm = req.query.search || ''; // Get the search term from the query parameters
-    let query;
-    let params = [];
-
-    // Build the query based on status
-    switch (status) {
-        case 'open':
-            query = 'SELECT * FROM tickets WHERE status IN (?, ?) AND title LIKE ?';
-            params = ['New', 'Reopened', `%${searchTerm}%`];
-            break;
-        case 'pending':
-            query = 'SELECT * FROM tickets WHERE status IN (?, ?, ?) AND title LIKE ?';
-            params = ['In Progress', 'Pending', 'Assigned', `%${searchTerm}%`];
-            break;
-        case 'resolved':
-            query = 'SELECT * FROM tickets WHERE status = ? AND title LIKE ?';
-            params = ['Resolved', `%${searchTerm}%`];
-            break;
-        case 'closed':
-            query = 'SELECT * FROM tickets WHERE status = ? AND title LIKE ?';
-            params = ['Closed', `%${searchTerm}%`];
-            break;
-        default:
-            return res.status(400).send('Invalid status');
-    }
-
-    // Execute the query
-    db.query(query, params, (error, results) => {
-        if (error) {
-            console.error('Database query error:', error);
-            return res.status(500).send('Server Error');
-        }
-        res.render('admin/statusPage', { tickets: results, status, searchTerm }); // Pass searchTerm to the view
-    });
-};
-exports.getTicketsByPriority = (req, res) => {
-  const priority = req.params.priority;
-  const searchQuery = req.query.search || ''; // Get the search query from the request
-  let queueId;
-
-  // Map priority name to queue_id
-  switch (priority) {
-      case 'low':
-          queueId = 1; // Assuming Low has queue_id 1
-          break;
-      case 'medium':
-          queueId = 2; // Assuming Medium has queue_id 2
-          break;
-      case 'high':
-          queueId = 3; // Assuming High has queue_id 3
-          break;
-      case 'urgent':
-          queueId = 4; // Assuming Urgent has queue_id 4
-          break;
-      default:
-          return res.status(400).send('Invalid priority');
-  }
-
-  // SQL query to get tickets with the selected queue_id and matching the search query
-  const query = 'SELECT * FROM tickets WHERE queue_id = ? AND title LIKE ?';
-  
-  db.query(query, [queueId, `%${searchQuery}%`], (error, results) => {
-      if (error) {
-          console.error('Database query error:', error);
-          return res.status(500).send('Server Error');
-      }
-      res.render('admin/ticketsByPriority', { tickets: results, priority, searchQuery });
-  });
-};
-
-
-
-exports.queue = (req, res) => {
-    res.render('admin/queue');
-  };
-
-// Controller to get all users
-
-exports.getAllUsers = (req, res) => {
-  const roles = ['all', 'admin', 'staff', 'user'];
-  const counts = {};
-
-  // Initialize counts for each role
-  roles.forEach(role => {
-      counts[role] = 0;
-  });
-
-  // Query for each role's count
-  const promises = roles.map(role => {
-      return new Promise((resolve, reject) => {
-          if (role === 'all') {
-              db.query('SELECT COUNT(*) AS count FROM users', (err, results) => {
-                  if (err) return reject(err);
-                  counts[role] = results[0].count;
-                  resolve();
-              });
-          } else {
-              db.query('SELECT COUNT(*) AS count FROM users WHERE role = ?', [role], (err, results) => {
-                  if (err) return reject(err);
-                  counts[role] = results[0].count;
-                  resolve();
-              });
-          }
-      });
-  });
-
-  Promise.all(promises)
-      .then(() => {
-          res.render('admin/userList', { userCounts: counts });
-      })
-      .catch(err => {
-          res.status(500).send(err);
-      });
-};
-
-
-// Controller to get users by role
-exports.getUsersByRole = (req, res) => {
-  const role = req.params.role;
-  let displayRole = 'All Role'; // Default display role
-
-  if (role === 'all') {
-      // If the role is 'all', fetch all users
-      db.query('SELECT * FROM users', (err, results) => {
-          if (err) {
-              return res.status(500).send(err);
-          }
-          // Pass the displayRole variable to the template
-          res.render('admin/userbyrolePage', { users: results, displayRole });
-      });
-  } else {
-      // Fetch users by specific role
-      db.query('SELECT * FROM users WHERE role = ?', [role], (err, results) => {
-          if (err) {
-              return res.status(500).send(err);
-          }
-          displayRole = role; // Set the display role to the specific role
-          res.render('admin/userbyrolePage', { users: results, displayRole });
-      });
-  }
-};
-
-// Controller to search users by username
-exports.searchUser = (req, res) => {
-  const username = req.query.username; // Get the username from the query
-
-  // Query to find users by username (case insensitive)
-  db.query('SELECT * FROM users WHERE username LIKE ?', [`%${username}%`], (err, results) => {
-      if (err) {
-          return res.status(500).send(err);
-      }
-      res.render('admin/userbyrolePage', { users: results, displayRole: 'Search Results' });
-  });
-};
-
-
-// Controller to get a specific user by ID for editing
-exports.getUserById = (req, res) => {
-  const userId = parseInt(req.params.userId, 10);
-
-  db.query('SELECT * FROM users WHERE user_id = ?', [userId], (err, results) => {
-      if (err) {
-          return res.status(500).send(err);
-      }
-      if (results.length === 0) {
-          return res.status(404).send('User not found');
-      }
-      res.render('admin/editUser', { user: results[0] });
-  });
-};
-
-// Controller to update user information
-exports.updateUser = (req, res) => {
-  const userId = req.params.userId;
-  const { username, email, password, role } = req.body; // Include role in the destructuring
-
-  const sql = 'UPDATE users SET username = ?, email = ?, password = ?, role = ? WHERE user_id = ?';
-  db.query(sql, [username, email, password, role, userId], (err, results) => {
-      if (err) {
-          return res.status(500).send(err);
-      }
-      res.redirect('/admin/userList'); // Redirect to the user list after updating
-  });
-};
-
-// adminController.js
-
-exports.showNewUserForm = (req, res) => {
-  // Render หน้า newUser โดยไม่ต้องมี error message
-  res.render('admin/newUser', { error: null });
-};
-
-
-exports.createUser = (req, res) => {
-  const { username, email, password, confirm_password, role } = req.body;
-
-  // ตรวจสอบว่ารหัสผ่านตรงกันหรือไม่
-  if (password !== confirm_password) {
-      return res.render('admin/newUser', { error: 'Passwords do not match' });
-  }
-
-  // สร้าง query สำหรับเพิ่มผู้ใช้ใหม่ในตาราง users
-  const query = `
-      INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)
-  `;
-  db.query(query, [username, email, password, role], (err, results) => {
-      if (err) {
-          console.error(err);
-          return res.render('admin/newUser', { error: 'Failed to create user' });
-      }
-
-      // หาก role เป็น 'staff' ให้เพิ่มข้อมูลในตาราง staff
-      if (role === 'staff') {
-          const staffQuery = `
-              INSERT INTO staff (name, email) VALUES (?, ?)
-          `;
-          db.query(staffQuery, [username, email], (err) => {
-              if (err) {
-                  console.error(err);
-                  return res.render('admin/newUser', { error: 'Failed to create staff member' });
-              }
-              
-              // หากสำเร็จทั้งสองอย่าง ให้ redirect หรือแสดงข้อความสำเร็จ
-              res.redirect('/admin/userList'); // เปลี่ยนเส้นทางหลังจากสร้างผู้ใช้เสร็จ
-          });
-      } else {
-          // หากไม่ใช่ staff ให้ redirect หรือแสดงข้อความสำเร็จ
-          res.redirect('/admin/userList');
-      }
-  });
-};

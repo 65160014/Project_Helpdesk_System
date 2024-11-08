@@ -13,9 +13,9 @@
             <div>
                 <h1>HELPDESK</h1>
                 <ul>
-                    <li><a href="/staff/tickets"><i class="fas fa-ticket-alt"></i> Tickets</a></li>
-                    <li class="active"><a href="/staff/status"><i class="fas fa-tasks"></i> Status</a></li>
-                    <li><a href="/staff/queue"><i class="fas fa-user-clock"></i> Queue</a></li>
+                    <li><a href="/staff/assigned-tickets"><i class="fas fa-ticket-alt"></i> Tickets</a></li>
+                    <li class="active"><a href="/staff/tickets/status"><i class="fas fa-tasks"></i> Status</a></li>
+                    <li><a href="/staff/tickets/queue"><i class="fas fa-user-clock"></i> Queue</a></li>
                 </ul>
             </div>
             <div class="profile">
@@ -26,36 +26,37 @@
             <div class="header">
                 <h2>Status</h2>
             </div>
-            <ul class="queue-list">
-                <li>
-                    <div class="status">
-                        <span>1</span>
-                        <a href="#">OPEN</a>
-                    </div>
-                    <div>▶</div>
-                </li>
-                <li>
-                    <div class="status">
-                        <span>2</span>
-                        <a href="#">PENDING</a>
-                    </div>
-                    <div>▶</div>
-                </li>
-                <li>
-                    <div class="status">
-                        <span>3</span>
-                        <a href="#">RESOLVED</a>
-                    </div>
-                    <div>▶</div>
-                </li>
-                <li>
-                    <div class="status">
-                        <span>4</span>
-                        <a href="#">CLOSED</a>
-                    </div>
-                    <div>▶</div>
-                </li>
-            </ul>
+            <!-- Relevant part of your HTML -->
+                <ul class="status-list">
+                    <li>
+                        <div class="status">
+                            <span>1</span>
+                            <a href="/staff/tickets/status/open">OPEN</a>
+                        </div>
+                        <div>▶</div>
+                    </li>
+                    <li>
+                        <div class="status">
+                            <span>2</span>
+                            <a href="/staff/tickets/status/pending">PENDING</a>
+                        </div>
+                        <div>▶</div>
+                    </li>
+                    <li>
+                        <div class="status">
+                            <span>3</span>
+                            <a href="/staff/tickets/status/resolved">RESOLVED</a>
+                        </div>
+                        <div>▶</div>
+                    </li>
+                    <li>
+                        <div class="status">
+                            <span>4</span>
+                            <a href="/staff/tickets/status/closed">CLOSED</a>
+                        </div>
+                        <div>▶</div>
+                    </li>
+                </ul>
         </div>
     </div>
 </body>

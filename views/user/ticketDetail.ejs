@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ticket Details - Helpdesk System</title>
+    <link rel="stylesheet" href="/css/style_ticketDetail.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+</head>
+<body>
+
+    
+    <div class="container">
+        <div class="sidebar">
+            <div>
+                <h1>HELPDESK</h1>
+                <ul>
+                    <li><a href="/user/dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                    <li class="active"><a href="/user/tickets"><i class="fas fa-ticket-alt"></i> Tickets</a></li>
+                    <li><a href="/user/search"><i class="fas fa-search"></i> Search</a></li>
+                </ul>
+            </div>
+            <div class="profile">
+                <a href="#"><i class="fas fa-user-circle"></i></a>
+            </div>
+        </div>
+        
+        <div class="content">
+                <div class="top-bar">
+                    <div class="left-icons">
+                        <a href="/user/tickets"><i class="fas fa-arrow-left"></i></a>
+                     
+                    </div>
+                    <div class="right-icons">
+                        <span>#<%= ticket.ticket_id %></span>
+                    </div>
+                </div>
+                <div class="ticket-title">
+                    <h2><%= ticket.title %></h2>
+                    <div class="actions">
+                        <button>
+                            Reply <i class="fas fa-reply"></i>
+                        </button>
+                    </div>
+                </div>
+                <hr>
+                <div class="ticket-meta">
+                    <div class="status">
+                        <p><strong>Status:</strong> <%= ticket.status %></p>
+                    </div>
+                    <div class="time">
+                        <p><strong>Created At:</strong> <%= new Date(ticket.created_at).toLocaleString() %></p>
+                    </div>
+                    <div class="timestamp">
+                        <p><strong>Last Updated At:</strong> <%= new Date(ticket.updated_at).toLocaleString() %></p>
+                    </div>
+                </div>
+                <div class="ticket-body">
+                    <div class="message">
+                        <p><strong>Description: </strong> <%= ticket.description %></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Inside your top-bar dropdown content -->
+<script>
+
+function flagTicket(priority) {
+    const ticketId = '<%= ticket.ticket_id %>';
+    fetch(`/user/tickets/${ticketId}/set-priority`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ priority: priority })
+    })
+    .then(response => {
+        if (response.ok) {
+            alert('Priority updated successfully!');
+            location.reload();
+        } else {
+            alert('Failed to update priority. Please try again.');
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+
+function statusTicket(status) {
+    const ticketId = '<%= ticket.ticket_id %>';
+    fetch(`/user/ticket/${ticketId}/set-status`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ status: status })
+    })
+    .then(response => {
+        if (response.ok) {
+            alert('Status updated successfully!');
+            location.reload();
+        } else {
+            alert('Failed to update status. Please try again.');
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+
+
+  </script>
+  
+</body>
+</html>
