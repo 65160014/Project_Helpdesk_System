@@ -19,7 +19,7 @@
                 </ul>
             </div>
             <div class="profile">
-                <a href="#"><i class="fas fa-user-circle"></i></a>
+                <a href="/profile"><i class="fas fa-user-circle"></i></a>
             </div>
         </div>
 
@@ -28,21 +28,25 @@
             <div class="header">
                 <h2>Tickets</h2>
                 <div class="filter-sort">
-                    <select>
-                        <option>All requests</option>
-                        <option>Open</option>
-                        <option>Pending</option>
-                        <option>Resolved</option>
-                        <option>Closed</option>
+                    <!-- Status Filter Dropdown -->
+                    <select id="statusFilter" onchange="filterTickets()">
+                        <option value="all">All requests</option>
+                        <option value="open">Open</option>
+                        <option value="pending">Pending</option>
+                        <option value="resolved">Resolved</option>
+                        <option value="closed">Closed</option>
                     </select>
-                    <select>
-                        <option>All requests</option>
-                        <option>Open</option>
-                        <option>Pending</option>
-                        <option>Resolved</option>
-                        <option>Closed</option>
+                    
+                    <!-- Priority Sort Dropdown -->
+                    <select id="prioritySort" onchange="filterTickets()">
+                        <option value="all">All priorities</option>
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                        <option value="urgent">Urgent</option>
                     </select>
                 </div>
+                
             </div>
     
             
@@ -83,4 +87,15 @@
             </div>
         </div>
 </body>
+<script>
+    // Function to capture filter/sort selections and send request to the server
+    function filterTickets() {
+        const status = document.getElementById("statusFilter").value;
+        const priority = document.getElementById("prioritySort").value;
+        
+        // Redirect to the filtered/sorted URL
+        window.location.href = `/staff/assigned-tickets?status=${status}&priority=${priority}`;
+    }
+</script>
+
 </html>

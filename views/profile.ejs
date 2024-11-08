@@ -1,27 +1,39 @@
-<!-- views/profile.ejs -->
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <title>User Profile</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Profile</title>
 </head>
 <body>
-    <h1>Welcome, <%= user.username %></h1>
-    <p>Email: <%= user.email %></p>
+  <h1>User Profile</h1>
+  
+  <% if (error) { %>
+    <div style="color: red;"><%= error %></div>
+  <% } %>
 
-    <!-- ฟอร์มเปลี่ยนรหัสผ่าน -->
-    <h2>Change Password</h2>
+  <% if (user) { %>
+    <p><strong>Username:</strong> <%= user.username %></p>
+    <p><strong>Email:</strong> <%= user.email %></p>
+
+    <h3>Change Password</h3>
     <form action="/profile/change-password" method="POST">
-        <label for="oldPassword">Old Password:</label>
-        <input type="password" name="oldPassword" required>
-        <br><br>
-        <label for="newPassword">New Password:</label>
-        <input type="password" name="newPassword" required>
-        <br><br>
-        <button type="submit">Change Password</button>
+      <label for="old_password">Old Password:</label>
+      <input type="password" name="old_password" required>
+      <br>
+      <label for="new_password">New Password:</label>
+      <input type="password" name="new_password" required>
+      <br>
+      <label for="confirm_new_password">Confirm New Password:</label>
+      <input type="password" name="confirm_new_password" required>
+      <br>
+      <button type="submit">Change Password</button>
     </form>
 
-    <!-- ปุ่ม Logout -->
-    <form action="/logout" method="GET">
-        <button type="submit">Logout</button>
+    <form action="/logout" method="POST">
+      <button type="submit">Logout</button>
     </form>
+  <% } %>
+
 </body>
 </html>

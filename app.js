@@ -127,6 +127,106 @@ app.post('/register', (req, res) => {
     });
 });
 
+// Routes for Profile, Password Change, and Logout
+app.get('/profile', (req, res) => {
+  if (!req.session.user) {
+    return res.redirect('/');
+  }
+
+  const user_id = req.session.user.user_id;
+  const query = 'SELECT username, email FROM users WHERE user_id = ?';
+
+  db.query(query, [user_id], (err, results) => {
+    if (err) {
+      console.error('Error fetching user data:', err);
+      return res.render('profile', { error: 'Unable to fetch user data', user: null });
+    }
+
+    if (results.length > 0) {
+      res.render('profile', { user: results[0], error: null });
+    } else {
+      res.render('profile', { error: 'User not found', user: null });
+    }
+  });
+});
+
+
+
+app.post('/profile/change-password', (req, res) => {
+  if (!req.session.user) {
+    return res.redirect('/');
+  }
+
+  const { old_password, new_password, confirm_new_password } = req.body;
+  const user_id = req.session.user.user_id;
+
+  // Verify new passwords match
+  if (new_password !== confirm_new_password) {
+    const query = 'SELECT username, email FROM users WHERE user_id = ?';
+    db.query(query, [user_id], (err, results) => {
+      if (err) {
+        console.error('Error fetching user data:', err);
+        return res.render('profile', { error: 'Unable to fetch user data' });
+      }
+      return res.render('profile', {
+        user: results[0],
+        error: 'New passwords do not match'
+      });
+    });
+    return; // Stop further execution
+  }
+
+  // Verify old password
+  const checkQuery = 'SELECT * FROM users WHERE user_id = ? AND password = ?';
+  db.query(checkQuery, [user_id, old_password], (err, results) => {
+    if (err) {
+      console.error('Error verifying old password:', err);
+      return res.render('profile', { error: 'An error occurred' });
+    }
+
+    if (results.length > 0) {
+      // Update password if old password matches
+      const updateQuery = 'UPDATE users SET password = ? WHERE user_id = ?';
+      db.query(updateQuery, [new_password, user_id], (err) => {
+        if (err) {
+          console.error('Error updating password:', err);
+          return res.render('profile', { error: 'Unable to update password' });
+        }
+        // After successful password update, show success message
+        return res.render('profile', {
+          user: results[0],
+          error: 'Password updated successfully'
+        });
+      });
+    } else {
+      // Old password is incorrect
+      const query = 'SELECT username, email FROM users WHERE user_id = ?';
+      db.query(query, [user_id], (err, results) => {
+        if (err) {
+          console.error('Error fetching user data:', err);
+          return res.render('profile', { error: 'Unable to fetch user data' });
+        }
+        return res.render('profile', {
+          user: results[0],
+          error: 'Old password is incorrect'
+        });
+      });
+    }
+  });
+});
+
+
+// Logout route
+app.post('/logout', (req, res) => {
+  req.session.destroy((err) => {
+    if (err) {
+      console.error('Error logging out:', err);
+    }
+    res.redirect('/');
+  });
+});
+
+
 app.listen(3000, () => {
   console.log('Server is running on port 3000');
 });
