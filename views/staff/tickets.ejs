@@ -30,27 +30,24 @@
                 <div class="filter-sort">
                     <!-- Status Filter Dropdown -->
                     <select id="statusFilter" onchange="filterTickets()">
-                        <option value="all">All requests</option>
-                        <option value="open">Open</option>
-                        <option value="pending">Pending</option>
-                        <option value="resolved">Resolved</option>
-                        <option value="closed">Closed</option>
+                        <option value="all" <%= selectedStatus === 'all' ? 'selected' : '' %>>All requests</option>
+                        <option value="open" <%= selectedStatus === 'open' ? 'selected' : '' %>>Open</option>
+                        <option value="pending" <%= selectedStatus === 'pending' ? 'selected' : '' %>>Pending</option>
+                        <option value="resolved" <%= selectedStatus === 'resolved' ? 'selected' : '' %>>Resolved</option>
+                        <option value="closed" <%= selectedStatus === 'closed' ? 'selected' : '' %>>Closed</option>
                     </select>
                     
                     <!-- Priority Sort Dropdown -->
                     <select id="prioritySort" onchange="filterTickets()">
-                        <option value="all">All priorities</option>
-                        <option value="low">Low</option>
-                        <option value="medium">Medium</option>
-                        <option value="high">High</option>
-                        <option value="urgent">Urgent</option>
+                        <option value="all" <%= selectedPriority === 'all' ? 'selected' : '' %>>All priorities</option>
+                        <option value="low" <%= selectedPriority === 'low' ? 'selected' : '' %>>Low</option>
+                        <option value="medium" <%= selectedPriority === 'medium' ? 'selected' : '' %>>Medium</option>
+                        <option value="high" <%= selectedPriority === 'high' ? 'selected' : '' %>>High</option>
+                        <option value="urgent" <%= selectedPriority === 'urgent' ? 'selected' : '' %>>Urgent</option>
                     </select>
                 </div>
-                
             </div>
-    
-            
-    
+
             <div class="ticket-list">
                 <div class="ticket-header">
                     <span>USER</span>
@@ -59,7 +56,7 @@
                     <span>STATUS</span>
                     <span>UPDATED AT</span>
                 </div>
-    
+
                 <% if (tickets.length === 0) { %>
                     <div class="no-tickets">
                         <p>No tickets</p>
@@ -97,5 +94,4 @@
         window.location.href = `/staff/assigned-tickets?status=${status}&priority=${priority}`;
     }
 </script>
-
 </html>

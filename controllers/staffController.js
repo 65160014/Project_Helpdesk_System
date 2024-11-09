@@ -4,81 +4,84 @@ const db = require('../config/db');
 exports.viewAssignedTickets = (req, res) => {
     const { user_id, username, role } = req.session.user;
     const { status, priority } = req.query; // Get status and priority from query parameters
-  
+
     // Step 1: Find the staff_id of the current user based on the username
     db.query(
-      `SELECT staff.staff_id 
-       FROM staff 
-       WHERE staff.name = ?`,
-      [username],
-      (error, results) => {
-        if (error || results.length === 0) {
-          console.error('Error fetching staff information:', error);
-          return res.status(500).send('Error fetching staff information');
+        `SELECT staff.staff_id 
+         FROM staff 
+         WHERE staff.name = ?`,
+        [username],
+        (error, results) => {
+            if (error || results.length === 0) {
+                console.error('Error fetching staff information:', error);
+                return res.status(500).send('Error fetching staff information');
+            }
+
+            const { staff_id } = results[0];
+
+            // Step 2: Initialize base query to fetch tickets assigned to this staff member's queues
+            let query = `
+                SELECT tickets.ticket_id, tickets.title, tickets.status, tickets.created_at,
+                       IFNULL(tickets.updated_at, tickets.created_at) AS display_updated_at,
+                       tickets.user_id, queue.priority,
+                       users.username AS ticket_owner_username, users.email AS ticket_owner_email
+                FROM tickets
+                JOIN queue ON tickets.queue_id = queue.queue_id
+                JOIN staff_has_queue ON queue.queue_id = staff_has_queue.queue_id
+                JOIN users ON tickets.user_id = users.user_id
+                WHERE staff_has_queue.staff_id = ?`;
+
+            let params = [staff_id];
+
+            // Add conditional filtering based on the status and priority selected
+            if (status && status !== 'all') {
+                switch (status) {
+                    case 'open':
+                        query += ` AND tickets.status IN (?, ?)`;
+                        params.push('New', 'Reopened');
+                        break;
+                    case 'pending':
+                        query += ` AND tickets.status IN (?, ?, ?)`;
+                        params.push('In Progress', 'Pending', 'Assigned');
+                        break;
+                    case 'resolved':
+                        query += ` AND tickets.status = ?`;
+                        params.push('Resolved');
+                        break;
+                    case 'closed':
+                        query += ` AND tickets.status = ?`;
+                        params.push('Closed');
+                        break;
+                    default:
+                        return res.status(400).send('Invalid status');
+                }
+            }
+
+            if (priority && priority !== 'all') {
+                query += ` AND queue.priority = ?`;
+                params.push(priority);
+            }
+
+            query += ` ORDER BY tickets.created_at DESC`; // Add ordering
+
+            db.query(query, params, (ticketError, ticketResults) => {
+                if (ticketError) {
+                    console.error('Error fetching assigned tickets:', ticketError);
+                    return res.status(500).send('Error fetching assigned tickets');
+                }
+
+                // Render the staff/tickets view with the retrieved tickets and selected filters
+                res.render('staff/tickets', {
+                    tickets: ticketResults,
+                    staff_id,
+                    selectedStatus: status || 'all',
+                    selectedPriority: priority || 'all'
+                });
+            });
         }
-  
-        const { staff_id } = results[0];
-  
-        // Step 2: Initialize base query to fetch tickets assigned to this staff member's queues
-        let query = `
-          SELECT tickets.ticket_id, tickets.title, tickets.status, tickets.created_at,
-                 IFNULL(tickets.updated_at, tickets.created_at) AS display_updated_at,
-                 tickets.user_id, queue.priority,
-                 users.username AS ticket_owner_username, users.email AS ticket_owner_email
-          FROM tickets
-          JOIN queue ON tickets.queue_id = queue.queue_id
-          JOIN staff_has_queue ON queue.queue_id = staff_has_queue.queue_id
-          JOIN users ON tickets.user_id = users.user_id
-          WHERE staff_has_queue.staff_id = ?`;
-        
-        let params = [staff_id];
-  
-        // Add conditional filtering based on the status and priority selected
-        if (status && status !== 'all') {
-          switch (status) {
-            case 'open':
-              query += ` AND tickets.status IN (?, ?)`;
-              params.push('New', 'Reopened');
-              break;
-            case 'pending':
-              query += ` AND tickets.status IN (?, ?, ?)`;
-              params.push('In Progress', 'Pending', 'Assigned');
-              break;
-            case 'resolved':
-              query += ` AND tickets.status = ?`;
-              params.push('Resolved');
-              break;
-            case 'closed':
-              query += ` AND tickets.status = ?`;
-              params.push('Closed');
-              break;
-            default:
-              return res.status(400).send('Invalid status');
-          }
-        }
-  
-        if (priority && priority !== 'all') {
-          query += ` AND queue.priority = ?`;
-          params.push(priority);
-        }
-  
-        db.query(query, params, (ticketError, ticketResults) => {
-          if (ticketError) {
-            console.error('Error fetching assigned tickets:', ticketError);
-            return res.status(500).send('Error fetching assigned tickets');
-          }
-  
-          // Render the staff/tickets view with the retrieved tickets and user info
-          res.render('staff/tickets', {
-            tickets: ticketResults,
-            staff_id
-          });
-        });
-      }
     );
-  };
-  
-  
+};
+
 
 
 // View ticket details for a ticket assigned to the logged-in staff member

@@ -188,52 +188,118 @@ exports.updateReport = (req, res) => {
 
 
 
-  exports.viewTickets = (req, res) => {
-    const page = parseInt(req.query.page) || 1;
-    const limit = 10;
-    const offset = (page - 1) * limit;
+exports.viewTickets = (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = 10;
+  const offset = (page - 1) * limit;
+  const { status, priority } = req.query;
 
-    console.log('Full session data:', req.session);
+  // Base query with filters for both status and priority
+  let query = `
+      SELECT tickets.ticket_id, tickets.title, tickets.status, tickets.created_at, 
+             IFNULL(tickets.updated_at, tickets.created_at) AS display_updated_at,
+             tickets.user_id, users.username, users.email,
+             queue.priority, queue.name AS agent_name
+      FROM tickets
+      LEFT JOIN users ON tickets.user_id = users.user_id
+      LEFT JOIN queue ON tickets.queue_id = queue.queue_id
+      WHERE 1=1`;
 
-    // Updated query to include queue priority and name
-    db.query(
-        `SELECT tickets.ticket_id, tickets.title, tickets.status, tickets.created_at, 
-                IFNULL(tickets.updated_at, tickets.created_at) AS display_updated_at,
-                tickets.user_id, users.username, users.email,
-                queue.priority, queue.name AS agent_name
-         FROM tickets
-         LEFT JOIN users ON tickets.user_id = users.user_id
-         LEFT JOIN queue ON tickets.queue_id = queue.queue_id -- Assuming there is a queue_id in tickets
-         ORDER BY tickets.created_at DESC 
-         LIMIT ? OFFSET ?`,
-        [limit, offset],
-        (error, results) => {
-            if (error) {
-                console.error('Database query error:', error);
-                return res.status(500).send('Error retrieving tickets');
-            }
+  let params = [];
 
-            db.query(
-                `SELECT COUNT(*) AS total FROM tickets`,
-                (countError, countResults) => {
-                    if (countError) {
-                        console.error('Count query error:', countError);
-                        return res.status(500).send('Error counting tickets');
-                    }
+  // Add status filter
+  if (status && status !== 'all') {
+      switch (status) {
+          case 'open':
+              query += ` AND tickets.status IN (?, ?)`;
+              params.push('New', 'Reopened');
+              break;
+          case 'pending':
+              query += ` AND tickets.status IN (?, ?, ?)`;
+              params.push('In Progress', 'Pending', 'Assigned');
+              break;
+          case 'resolved':
+              query += ` AND tickets.status = ?`;
+              params.push('Resolved');
+              break;
+          case 'closed':
+              query += ` AND tickets.status = ?`;
+              params.push('Closed');
+              break;
+          default:
+              return res.status(400).send('Invalid status');
+      }
+  }
 
-                    const totalTickets = countResults[0].total;
-                    const totalPages = Math.ceil(totalTickets / limit);
+  // Add priority filter
+  if (priority && priority !== 'all') {
+      query += ` AND queue.priority = ?`;
+      params.push(priority);
+  }
 
-                    res.render('admin/tickets', {
-                        tickets: results,
-                        currentPage: page,
-                        totalPages: totalPages
-                    });
-                }
-            );
-        }
-    );
+  // Complete the query with ordering, limit, and offset
+  query += ` ORDER BY tickets.created_at DESC LIMIT ? OFFSET ?`;
+  params.push(limit, offset);
+
+  // Execute the main query
+  db.query(query, params, (error, results) => {
+      if (error) {
+          console.error('Database query error:', error);
+          return res.status(500).send('Error retrieving tickets');
+      }
+
+      // Count query that respects status and priority filters for pagination
+      let countQuery = `SELECT COUNT(*) AS total FROM tickets LEFT JOIN queue ON tickets.queue_id = queue.queue_id WHERE 1=1`;
+      let countParams = [];
+
+      // Apply status and priority filters to the count query
+      if (status && status !== 'all') {
+          switch (status) {
+              case 'open':
+                  countQuery += ` AND tickets.status IN (?, ?)`;
+                  countParams.push('New', 'Reopened');
+                  break;
+              case 'pending':
+                  countQuery += ` AND tickets.status IN (?, ?, ?)`;
+                  countParams.push('In Progress', 'Pending', 'Assigned');
+                  break;
+              case 'resolved':
+                  countQuery += ` AND tickets.status = ?`;
+                  countParams.push('Resolved');
+                  break;
+              case 'closed':
+                  countQuery += ` AND tickets.status = ?`;
+                  countParams.push('Closed');
+                  break;
+          }
+      }
+
+      if (priority && priority !== 'all') {
+          countQuery += ` AND queue.priority = ?`;
+          countParams.push(priority);
+      }
+
+      db.query(countQuery, countParams, (countError, countResults) => {
+          if (countError) {
+              console.error('Count query error:', countError);
+              return res.status(500).send('Error counting tickets');
+          }
+
+          const totalTickets = countResults[0].total;
+          const totalPages = Math.ceil(totalTickets / limit);
+
+          res.render('admin/tickets', {
+              tickets: results,
+              currentPage: page,
+              totalPages: totalPages,
+              selectedStatus: status || 'all',
+              selectedPriority: priority || 'all'
+          });
+      });
+  });
 };
+
+
 
 
   // Function to render individual ticket details
@@ -401,12 +467,6 @@ exports.assignStaffToTicket = (req, res) => {
   console.log('Received ticketId:', ticketId);
   console.log('Received staff_id:', staffId);
 
-  // Check if staffId is a valid number
-  if (isNaN(staffId)) {
-    console.error('Invalid staff_id:', staffId);
-    return res.status(400).send('Invalid staff_id');
-  }
-
   // Step 1: Fetch queue_id from ticket table using ticketId
   db.query('SELECT queue_id FROM tickets WHERE ticket_id = ?', [ticketId], (error, results) => {
     if (error) {
@@ -422,44 +482,53 @@ exports.assignStaffToTicket = (req, res) => {
     const queueId = results[0].queue_id;
     console.log('Fetched queue_id:', queueId);
 
-    // Step 2: Fetch name from staff table using staffId
-    db.query('SELECT name FROM staff WHERE staff_id = ?', [staffId], (error, staffResults) => {
-      if (error) {
-        console.error('Error fetching staff name:', error);
+    // Step 2: Delete any existing rows with the same queue_id and staff_id in staff_has_queue
+    db.query('DELETE FROM staff_has_queue WHERE queue_id = ?', [queueId], (deleteError, deleteResults) => {
+      if (deleteError) {
+        console.error('Error deleting rows from staff_has_queue:', deleteError);
+        return res.status(500).send('Failed to delete rows from staff_has_queue');
+      }
+      console.log('Deleted existing rows with queue_id:', queueId);
+      
+      // เรียกใช้ฟังก์ชันเพื่อเพิ่มแถวใหม่สำหรับการจับคู่ staff_id กับ queue_id
+      insertNewStaffQueue(queueId, staffId, res);
+    });
+    
+  });
+};
+
+// Helper function to insert a new staff_has_queue row
+function insertNewStaffQueue(queueId, staffId, res) {
+  db.query('INSERT INTO staff_has_queue (queue_id, staff_id) VALUES (?, ?)', [queueId, staffId], (insertError, insertResults) => {
+    if (insertError) {
+      console.error('Error inserting new staff_has_queue row:', insertError);
+      return res.status(500).send('Failed to insert new staff_has_queue row');
+    }
+
+    // Step 4: Update the staff name in the queue table
+    db.query('SELECT name FROM staff WHERE staff_id = ?', [staffId], (nameError, nameResults) => {
+      if (nameError) {
+        console.error('Error fetching staff name:', nameError);
         return res.status(500).send('Failed to fetch staff name');
       }
 
-      if (staffResults.length === 0) {
-        console.error('No staff found with staff_id:', staffId);
-        return res.status(404).send('Staff not found');
-      }
+      const staffName = nameResults[0].name;
 
-      const staffName = staffResults[0].name;
-      console.log('Fetched staff name:', staffName);
-
-      // Step 3: Update the queue table
-      db.query('UPDATE queue SET name = ? WHERE queue_id = ?', [staffName, queueId], (error, results) => {
-        if (error) {
-          console.error('Error updating queue:', error);
+      // Update the staff name in the queue table
+      db.query('UPDATE queue SET name = ? WHERE queue_id = ?', [staffName, queueId], (updateError, updateResults) => {
+        if (updateError) {
+          console.error('Error updating queue:', updateError);
           return res.status(500).send('Failed to update queue');
         }
 
-        console.log('Queue updated successfully. Results:', results);
-
-        // Step 4: Update the status of the ticket to 'Assigned'
-        db.query('UPDATE tickets SET status = ? WHERE ticket_id = ?', ['Assigned', ticketId], (error, updateResults) => {
-          if (error) {
-            console.error('Error updating ticket status:', error);
-            return res.status(500).send('Failed to update ticket status');
-          }
-
-          console.log('Ticket status updated to "Assigned". Results:', updateResults);
-          res.status(200).send('Queue updated and ticket status set to "Assigned" successfully');
-        });
+        console.log('Queue updated successfully with new staff name');
+        res.status(200).send('Queue updated and staff assigned successfully');
       });
     });
   });
-};
+}
+
+
 
 exports.status = (req, res) => {
   res.render('admin/status');

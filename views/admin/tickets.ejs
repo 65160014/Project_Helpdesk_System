@@ -35,25 +35,25 @@
             <div class="header">
                 <h2>Tickets</h2>
                 <div class="filter-sort">
-                    <select>
-                        <option>All requests</option>
-                        <option>Open</option>
-                        <option>Pending</option>
-                        <option>Resolved</option>
-                        <option>Closed</option>
-                    </select>
-                    <select>
-                        <option>All requests</option>
-                        <option>Open</option>
-                        <option>Pending</option>
-                        <option>Resolved</option>
-                        <option>Closed</option>
-                    </select>
+                    <form action="/admin/tickets" method="GET">
+                        <select name="status" onchange="this.form.submit()">
+                            <option value="all" <%= selectedStatus === 'all' ? 'selected' : '' %>>All Statuses</option>
+                            <option value="open" <%= selectedStatus === 'open' ? 'selected' : '' %>>Open</option>
+                            <option value="pending" <%= selectedStatus === 'pending' ? 'selected' : '' %>>Pending</option>
+                            <option value="resolved" <%= selectedStatus === 'resolved' ? 'selected' : '' %>>Resolved</option>
+                            <option value="closed" <%= selectedStatus === 'closed' ? 'selected' : '' %>>Closed</option>
+                        </select>
+                    
+                        <select name="priority" onchange="this.form.submit()">
+                            <option value="all" <%= selectedPriority === 'all' ? 'selected' : '' %>>All Priorities</option>
+                            <option value="Low" <%= selectedPriority === 'Low' ? 'selected' : '' %>>Low</option>
+                            <option value="Medium" <%= selectedPriority === 'Medium' ? 'selected' : '' %>>Medium</option>
+                            <option value="High" <%= selectedPriority === 'High' ? 'selected' : '' %>>High</option>
+                        </select>
+                    </form>
                 </div>
             </div>
-    
             
-    
             <div class="ticket-list">
                 <div class="ticket-header">
                     <span>USER</span>
