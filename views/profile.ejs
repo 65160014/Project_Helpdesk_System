@@ -4,36 +4,45 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>User Profile</title>
+  <link rel="stylesheet" href="/css/style_login.css">
 </head>
 <body>
-  <h1>User Profile</h1>
-  
+  <div class="login-container">
+    <header>
+      <h1>User Profile</h1>
+    </header>
+
   <% if (error) { %>
     <div style="color: red;"><%= error %></div>
   <% } %>
 
   <% if (user) { %>
-    <p><strong>Username:</strong> <%= user.username %></p>
-    <p><strong>Email:</strong> <%= user.email %></p>
+    <main>
+        <h3><strong>Username:</strong> <%= user.username %></h3>
+        <h3><strong>Email:</strong> <%= user.email %></h3>
 
-    <h3>Change Password</h3>
-    <form action="/profile/change-password" method="POST">
-      <label for="old_password">Old Password:</label>
-      <input type="password" name="old_password" required>
-      <br>
-      <label for="new_password">New Password:</label>
-      <input type="password" name="new_password" required>
-      <br>
-      <label for="confirm_new_password">Confirm New Password:</label>
-      <input type="password" name="confirm_new_password" required>
-      <br>
-      <button type="submit">Change Password</button>
-    </form>
+        <h3>Change Password</h3>
+        
+          <div class="login-form">
+        <form action="/profile/change-password" method="POST">
+          <label for="old_password">Old Password:</label>
+          <input type="password" name="old_password" required>
+          <br>
+          <label for="new_password">New Password:</label>
+          <input type="password" name="new_password" required>
+          <br>
+          <label for="confirm_new_password">Confirm New Password:</label>
+          <input type="password" name="confirm_new_password" required>
+          <br>
+          <button type="submit">Change Password</button>
+        </form>
 
-    <form action="/logout" method="POST">
-      <button type="submit">Logout</button>
-    </form>
-  <% } %>
+        <form action="/logout" method="POST">
+          <button type="submit">Logout</button>
+        </form>
+        
+      </main>
+    <% } %>
 
 </body>
 </html>
