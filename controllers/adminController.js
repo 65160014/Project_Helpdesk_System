@@ -412,7 +412,7 @@ exports.setStatus = (req, res) => {
   console.log('Received request to update status. Ticket ID:', ticketId, 'Status:', status); // Log received values
 
   // Validate status
-  const validStatuses = ['Open', 'In Progress', 'Pending', 'Resolved', 'Closed'];
+  const validStatuses = ['In Progress', 'Pending', 'Resolved', 'Closed' , 'Reopened', 'Escalated'];
   if (!validStatuses.includes(status)) {
       console.error('Invalid status value received:', status); // Log invalid status
       return res.status(400).send('Invalid status value');

@@ -4,9 +4,6 @@ const userController = require('../controllers/userController');
 
 router.get('/dashboard', userController.getDashboard);
 router.get('/report/:id', userController.getReportDetails);
-// router.get('/tickets', userController.tickets);
-
-// router.get('/search', userController.search);
 
 router.get('/newTickets', userController.newTicketsPage);
 
@@ -18,8 +15,10 @@ router.get('/tickets', userController.viewTickets);
 
 router.get('/tickets/:ticket_id', userController.viewTicketDetail);
 
-// ดูข้อมูล Knowledge Base
-// router.get('/knowledge-base', userController.viewKnowledgeBase);
+// เพิ่ม route สำหรับอัปเดตสถานะของ Ticket
+router.post('/ticket/:ticket_id/set-status', userController.updateTicketStatus);
+
+
 
 // // Route to display the list of FAQs
 router.get('/search', userController.getFaqList);

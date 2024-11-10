@@ -229,6 +229,21 @@ exports.viewTicketDetail = (req, res) => {
 );
 }
 
+exports.updateTicketStatus = (req, res) => {
+  const ticketId = parseInt(req.params.ticket_id, 10);
+  const { status } = req.body;
+
+  const query = `UPDATE tickets SET status = ?, updated_at = NOW() WHERE ticket_id = ?`;
+  db.query(query, [status, ticketId], (error, results) => {
+      if (error) {
+          console.error("Error updating ticket status:", error);
+          return res.status(500).send("Failed to update ticket status");
+      }
+      res.status(200).send("Status updated successfully");
+  });
+};
+
+
 // ดึงรายงานที่มีสถานะ show
 exports.getReports = (req, res) => {
   db.query(

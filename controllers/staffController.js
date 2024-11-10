@@ -132,14 +132,24 @@ exports.viewTicketDetail = (req, res) => {
 };
 
 
-
-// Assign or update ticket status and ensure record in `staff_has_ticket` table
 exports.setStatus = (req, res) => {
     const ticketId = parseInt(req.params.ticket_id, 10);
     const { status } = req.body;
     const { username } = req.session.user;
 
-    // Get staff_id
+    // Log received values
+    console.log('Received request to update status. Ticket ID:', ticketId, 'Status:', status);
+
+    // Validate status
+    const validStatuses = ['In Progress', 'Pending', 'Resolved', 'Closed', 'Reopened', 'Escalated'];
+    if (!validStatuses.includes(status)) {
+        console.error('Invalid status value received:', status);
+        return res.status(400).send('Invalid status value');
+    }
+
+    console.log('Updating ticket:', ticketId, 'with status:', status); // Debugging log
+
+    // Retrieve staff ID based on username
     db.query(
         `SELECT staff_id FROM staff WHERE name = ?`,
         [username],
@@ -151,7 +161,7 @@ exports.setStatus = (req, res) => {
 
             const staff_id = staffResults[0].staff_id;
 
-            // Check if staff has the ticket already in `staff_has_ticket`
+            // Check if the staff member is assigned to the ticket
             db.query(
                 `SELECT * FROM staff_has_ticket WHERE staff_id = ? AND ticket_id = ?`,
                 [staff_id, ticketId],
@@ -162,7 +172,7 @@ exports.setStatus = (req, res) => {
                     }
 
                     if (checkResults.length === 0) {
-                        // Insert new record if not exists
+                        // Assign the ticket to the staff member if not assigned
                         db.query(
                             `INSERT INTO staff_has_ticket (staff_id, ticket_id, assigned_at) VALUES (?, ?, NOW())`,
                             [staff_id, ticketId],
@@ -175,7 +185,7 @@ exports.setStatus = (req, res) => {
                             }
                         );
                     } else {
-                        // Update `assigned_at` timestamp if record exists
+                        // Update the assignment timestamp if already assigned
                         db.query(
                             `UPDATE staff_has_ticket SET assigned_at = NOW() WHERE staff_id = ? AND ticket_id = ?`,
                             [staff_id, ticketId],
@@ -189,27 +199,34 @@ exports.setStatus = (req, res) => {
                         );
                     }
 
-                    // Update ticket status
+                    // Function to update the ticket status
                     function updateTicketStatus() {
-                      db.query(
-                          `UPDATE tickets SET status = ?, updated_at = NOW() WHERE ticket_id = ?`,
-                          [status, ticketId],
-                          (statusError, statusResults) => {
-                              if (statusError) {
-                                  console.error('Error updating ticket status:', statusError); // เพิ่มการพิมพ์ข้อผิดพลาด
-                                  return res.status(500).send('Failed to update ticket status. Please check input and try again.');
-                              }
-                  
-                              console.log('Status updated successfully for ticket ID:', ticketId);
-                              res.status(200).send('Status updated successfully');
-                          }
-                      );
-                  }                  
+                        db.query(
+                            `UPDATE tickets SET status = ?, updated_at = NOW() WHERE ticket_id = ?`,
+                            [status, ticketId],
+                            (statusError, statusResults) => {
+                                if (statusError) {
+                                    console.error('Error updating ticket status:', statusError);
+                                    return res.status(500).send('Failed to update ticket status');
+                                }
+
+                                if (statusResults.affectedRows === 0) {
+                                    console.error('No rows updated for ticket_id:', ticketId);
+                                    return res.status(404).send('Ticket not found for update');
+                                }
+
+                                console.log('Status updated successfully for ticket ID:', ticketId);
+                                res.status(200).send('Status updated successfully');
+                            }
+                        );
+                    }
                 }
             );
         }
     );
 };
+
+
 
 //แสดงหน้า tickets ที่แบ่งตาม priority
 exports.setPriority = (req, res) => {
@@ -296,7 +313,7 @@ exports.getTicketsByStatus = (req, res) => {
                   query = `SELECT * FROM tickets 
                            JOIN staff_has_ticket ON staff_has_ticket.ticket_id = tickets.ticket_id
                            WHERE tickets.status = ? AND staff_has_ticket.staff_id = ? AND tickets.title LIKE ?`;
-                  params = ['Closed', staff_id, `%${searchTerm}%`];
+                  params = ['Closed', 'Escalated', staff_id, `%${searchTerm}%`];
                   break;
               default:
                   return res.status(400).send('Invalid status');

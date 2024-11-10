@@ -106,9 +106,10 @@ body {
 .ticket-meta .time {
     font-size: 20px;
 }
-.ticket-title .actions {
+.actions {
     display: flex;
     align-items: center;
+    margin-top: 30px;
 }
 .ticket-title .actions button {
     background-color: #000000;
@@ -183,4 +184,55 @@ body {
 
 .dropdown-content button:hover {
     background-color: #f1f1f1;
+}
+
+/* Add this CSS to your existing style_ticketDetail.css or a new section */
+.actions button {
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 5px;
+}
+
+/* Styles for the 'Confirm Issue Resolution' button */
+.actions button:hover {
+    opacity: 0.8;
+}
+
+.actions button:focus {
+    outline: none;
+}
+
+.actions button:active {
+    transform: scale(0.98);
+}
+
+/* Specific style for 'Confirm Issue Resolution' button */
+.actions button:nth-child(1) {
+    background-color: #4CAF50; /* Green background */
+    color: white;
+}
+
+.actions button:nth-child(1):hover {
+    background-color: #45a049; /* Darker green on hover */
+}
+
+/* Specific style for 'Reopen Issue' button */
+.actions button:nth-child(2) {
+    background-color: #FF9800; /* Orange background */
+    color: white;
+}
+
+.actions button:nth-child(2):hover {
+    background-color: #e68900; /* Darker orange on hover */
+}
+
+/* Optional: Add a disabled state for buttons */
+.actions button:disabled {
+    background-color: #d3d3d3;
+    color: #aaa;
+    cursor: not-allowed;
 }

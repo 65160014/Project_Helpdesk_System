@@ -44,13 +44,14 @@
                     <div class="dropdown">
                         <i class="fas fa-bookmark"></i>
                         <div class="dropdown-content">
-                            <button onclick="statusTicket('Open')">Open</button>
                             <button onclick="statusTicket('In Progress')">In Progress</button>
                             <button onclick="statusTicket('Pending')">Pending</button>
                             <button onclick="statusTicket('Resolved')">Resolved</button>
                             <button onclick="statusTicket('Closed')">Closed</button>
+                            <button onclick="statusTicket('Reopened')">Reopened</button>
+                            <button onclick="statusTicket('Escalated')">Escalated</button>
                         </div>
-                    </div>        
+                    </div>     
                     </div>
                     <div class="right-icons">
                         <span>#<%= ticket.ticket_id %></span>
@@ -58,11 +59,11 @@
                 </div>
                 <div class="ticket-title">
                     <h2><%= ticket.title %></h2>
-                    <div class="actions">
+                    <!-- <div class="actions">
                         <button>
                             Reply <i class="fas fa-reply"></i>
                         </button>
-                    </div>
+                    </div> -->
                 </div>
                 <hr>
                 <div class="ticket-meta">

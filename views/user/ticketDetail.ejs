@@ -37,11 +37,11 @@
                 </div>
                 <div class="ticket-title">
                     <h2><%= ticket.title %></h2>
-                    <div class="actions">
+                    <!-- <div class="actions">
                         <button>
                             Reply <i class="fas fa-reply"></i>
                         </button>
-                    </div>
+                    </div> -->
                 </div>
                 <hr>
                 <div class="ticket-meta">
@@ -60,6 +60,22 @@
                         <p><strong>Description: </strong> <%= ticket.description %></p>
                     </div>
                 </div>
+                <!-- เพิ่มในส่วนของ actions ใน ticketDetail -->
+                <div class="actions">
+                    <% if (ticket.status === 'Resolved') { %>
+                        <button onclick="confirmResolution()">
+                            Please Confirm Issue Resolution
+                        </button>
+                    <% } else if (ticket.status === 'Closed') { %>
+                        <button onclick="statusTicket('Reopened')">
+                            Reopen Issue ?
+                        </button>
+                    <% } else{ %>
+                     <%  } %>
+                </div>
+                
+                              
+
             </div>
         </div>
     </div>
@@ -86,9 +102,19 @@ function flagTicket(priority) {
     .catch(error => console.error('Error:', error));
 }
 
-
+function confirmResolution() {
+    if (confirm("ปัญหาได้รับการแก้ไขแล้วหรือไม่?")) {
+        statusTicket('Closed');
+    } else {
+        statusTicket('Reopened');
+    }
+}
 function statusTicket(status) {
     const ticketId = '<%= ticket.ticket_id %>';
+    
+    // เพิ่มการตรวจสอบใน console เพื่อดูสถานะก่อนที่จะเปลี่ยน
+    console.log('Current ticket status:', '<%= ticket.status %>');
+    
     fetch(`/user/ticket/${ticketId}/set-status`, {
         method: 'POST',
         headers: {
@@ -98,16 +124,40 @@ function statusTicket(status) {
     })
     .then(response => {
         if (response.ok) {
-            alert('Status updated successfully!');
-            location.reload();
+            alert('สถานะของ ticket ถูกอัปเดตเรียบร้อยแล้ว');
+            location.reload(); // รีเฟรชหน้าเพื่อแสดงสถานะที่อัปเดต
         } else {
-            alert('Failed to update status. Please try again.');
+            alert('ไม่สามารถอัปเดตสถานะได้ กรุณาลองใหม่');
         }
     })
-    .catch(error => console.error('Error:', error));
+    .catch(error => {
+        console.error('Error:', error);
+        alert('เกิดข้อผิดพลาดในการอัปเดตสถานะ');
+    });
 }
 
 
+function updateTicketStatus(ticketId, status) {
+    fetch(`/user/ticket/${ticketId}/set-status`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ status: status })
+    })
+    .then(response => {
+        if (response.ok) {
+            alert('สถานะของ ticket ถูกอัปเดตเรียบร้อยแล้ว');
+            location.reload(); // รีเฟรชหน้าเพื่อแสดงสถานะที่อัปเดต
+        } else {
+            alert('ไม่สามารถอัปเดตสถานะได้ กรุณาลองใหม่');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('เกิดข้อผิดพลาดในการอัปเดตสถานะ');
+    });
+}
 
   </script>
   
