@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/style_dashboard.css"> <!-- Adjust path as necessary -->
+    <title>Report Details</title>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div>
+                <h1>HELPDESK</h1>
+                <ul>
+                    <li class="active"><a href="/user/dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                    <li><a href="/user/tickets"><i class="fas fa-ticket-alt"></i> Tickets</a></li>
+                    <li><a href="/user/search"><i class="fas fa-search"></i> Search</a></li>
+                </ul>
+            </div>
+            <div class="profile">
+                <a href="/profile"><i class="fas fa-user-circle"></i></a>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="header">
+                <h1>Report Details</h1>
+            </div>
+            <% if (report) { %>
+                    <div class="form-group">
+                        <h3>Title</h3>
+                        <input type="text" id="title" name="title" class="form-input" value="<%= report.title %>" required>
+                    </div>
+
+                    <div class="form-group">
+                        <h3>Content</h3>
+                        <textarea id="content" name="content" class="form-textarea" required><%= report.content %></textarea>
+                    </div>
+
+            <% } else { %>
+                <p>Report not found.</p>
+            <% } %>
+        </div>
+    </div>
+</body>
+</html>

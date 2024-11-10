@@ -3,7 +3,7 @@ const router = express.Router();
 const userController = require('../controllers/userController');
 
 router.get('/dashboard', userController.getDashboard);
-
+router.get('/report/:id', userController.getReportDetails);
 // router.get('/tickets', userController.tickets);
 
 // router.get('/search', userController.search);

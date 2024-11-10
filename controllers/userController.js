@@ -243,6 +243,27 @@ exports.getReports = (req, res) => {
   );
 };
 
+// แสดงรายละเอียดรายงาน
+exports.getReportDetails = (req, res) => {
+  const reportId = req.params.id;
+
+  db.query(
+      "SELECT * FROM report WHERE report_id = ?",
+      [reportId],
+      (error, results) => {
+          if (error) {
+              console.error("Error fetching report details:", error.message);
+              return res.status(500).send("Error fetching report details");
+          }
+          // Check if report is found
+          if (results.length === 0) {
+              return res.status(404).send("Report not found");
+          }
+          res.render('user/reportDetails', { report: results[0] }); // Send report data to view
+      }
+  );
+};
+
 exports.getFaqList = (req, res) => {
   const query = 'SELECT knowledge_base_id, title FROM knowledgebase';
   db.query(query, (err, results) => {
