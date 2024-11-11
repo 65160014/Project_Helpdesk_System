@@ -27,4 +27,11 @@ router.get('/tickets/queue', checkStaffRole, staffController.queue);
 // Route to view tickets by priority for a specific staff member
 router.get('/tickets/priority/:priority', checkStaffRole, staffController.getTicketsByPriority);
 
+
+// // Route to display the list of FAQs
+router.get('/search', checkStaffRole, staffController.getFaqList);
+// // Route to display a single FAQ detail by ID
+router.get('/search/:id', checkStaffRole, staffController.getFaqDetail);
+router.get('/searchbar', checkStaffRole, staffController.searchFaqs);
+
 module.exports = router;

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FAQs - Helpdesk System</title>
+    <link rel="stylesheet" href="/css/style_search.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div>
+                <h1>HELPDESK</h1>
+                <ul>
+                    <li><a href="/staff/assigned-tickets"><i class="fas fa-ticket-alt"></i> Tickets</a></li>
+                    <li><a href="/staff/tickets/status"><i class="fas fa-tasks"></i> Status</a></li>
+                    <li><a href="/staff/tickets/queue"><i class="fas fa-user-clock"></i> Queue</a></li>
+                    <li class="active"><a href="/staff/search"><i class="fas fa-search"></i> Search</a></li>
+                </ul>
+            </div>
+            <div class="profile">
+                <a href="/profile"><i class="fas fa-user-circle"></i></a>
+            </div>
+        </div>
+        </div>
+        <div class="content">
+            <div class="header">
+                <h2>Frequency Asked Question</h2>
+            </div>
+            <h2>ค้นหาข้อมูล</h2>
+            <div class="search-bar">
+                <form action="/user/searchbar" method="get">
+                    <label for="search">ค้นหา:</label>
+                    <input type="text" id="search" name="search" value="<%= searchTerm || '' %>">
+                    <button type="submit">Search</button>
+                </form>
+            </div>
+            <div class="faq">
+                <h2>คำถามที่พบบ่อย (FAQ)</h2>
+                <% if (faqs.length > 0) { %>
+                    <ul>
+                        <% faqs.forEach(faq => { %>
+                            <li>
+                                <a href="/user/search/<%= faq.knowledge_base_id %>"><%= faq.title %></a>
+                            </li>
+                        <% }) %>
+                    </ul>
+                <% } else { %>
+                    <!-- แสดงข้อความแจ้งเตือนเมื่อไม่พบผลลัพธ์ -->
+                    <p>ไม่พบข้อมูลที่ตรงกับคำค้นหาของคุณ</p>
+                <% } %>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

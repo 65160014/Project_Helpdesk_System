@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= faq.title %></title>
+    <link rel="stylesheet" href="/css/style_search.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+</head>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div>
+                <h1>HELPDESK</h1>
+                <ul>
+                    <li><a href="/staff/assigned-tickets"><i class="fas fa-ticket-alt"></i> Tickets</a></li>
+                    <li><a href="/staff/tickets/status"><i class="fas fa-tasks"></i> Status</a></li>
+                    <li class="active"><a href="/staff/tickets/queue"><i class="fas fa-user-clock"></i> Queue</a></li>
+                    <li class="active"><a href="/staff/search"><i class="fas fa-search"></i> Search</a></li>
+                </ul>
+            </div>
+            <div class="profile">
+                <a href="/profile"><i class="fas fa-user-circle"></i></a>
+            </div>
+        </div>
+            <div class="profile">
+                <a href="/profile"><i class="fas fa-user-circle"></i></a>
+            </div>
+        </div>
+        <div class="content">
+            <div class="header">
+                <h2><%= faq.title %></h2>
+            </div>
+            <p><%= faq.content %></p>
+            <a href="/user/search">Back to FAQs</a>
+        </div>
+</body>
+</html>
