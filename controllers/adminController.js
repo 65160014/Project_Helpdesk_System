@@ -491,14 +491,14 @@ exports.assignStaffToTicket = (req, res) => {
       console.log('Deleted existing rows with queue_id:', queueId);
       
       // เรียกใช้ฟังก์ชันเพื่อเพิ่มแถวใหม่สำหรับการจับคู่ staff_id กับ queue_id
-      insertNewStaffQueue(queueId, staffId, res);
+      insertNewStaffQueue(ticketId, queueId, staffId, res);
     });
     
   });
 };
 
 // Helper function to insert a new staff_has_queue row
-function insertNewStaffQueue(queueId, staffId, res) {
+function insertNewStaffQueue(ticketId, queueId, staffId, res) {
   db.query('INSERT INTO staff_has_queue (queue_id, staff_id) VALUES (?, ?)', [queueId, staffId], (insertError, insertResults) => {
     if (insertError) {
       console.error('Error inserting new staff_has_queue row:', insertError);
@@ -522,7 +522,17 @@ function insertNewStaffQueue(queueId, staffId, res) {
         }
 
         console.log('Queue updated successfully with new staff name');
-        res.status(200).send('Queue updated and staff assigned successfully');
+
+        // Step 5: Update ticket status to 'Assigned'
+        db.query('UPDATE tickets SET status = ? WHERE ticket_id = ?', ['Assigned', ticketId], (statusError, statusResults) => {
+          if (statusError) {
+            console.error('Error updating ticket status:', statusError);
+            return res.status(500).send('Failed to update ticket status');
+          }
+
+          console.log('Ticket status updated to Assigned');
+          res.status(200).send('Queue updated, staff assigned, and ticket status set to Assigned');
+        });
       });
     });
   });

@@ -400,7 +400,7 @@ exports.getFaqList = (req, res) => {
         return res.status(500).send('Server error');
       }
       // เพิ่ม searchTerm เป็นค่าว่าง เพื่อป้องกัน error ใน view
-      res.render('user/faq', { faqs: results, searchTerm: '' });
+      res.render('staff/faq', { faqs: results, searchTerm: '' });
     });
   };
   
@@ -417,7 +417,7 @@ exports.getFaqList = (req, res) => {
       if (results.length === 0) {
         return res.status(404).send('FAQ not found');
       }
-      res.render('user/faqDetail', { faq: results[0] });
+      res.render('staff/faqDetail', { faq: results[0] });
     });
   };
   
@@ -429,7 +429,7 @@ exports.getFaqList = (req, res) => {
         console.error('Error searching FAQs:', err);
         return res.status(500).send('Server error');
       }
-      res.render('user/faq', { faqs: results, searchTerm });
+      res.render('staff/faq', { faqs: results, searchTerm });
     });
   };
   

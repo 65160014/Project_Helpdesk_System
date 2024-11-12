@@ -23,14 +23,13 @@
                 <a href="/profile"><i class="fas fa-user-circle"></i></a>
             </div>
         </div>
-        </div>
         <div class="content">
             <div class="header">
                 <h2>Frequency Asked Question</h2>
             </div>
             <h2>ค้นหาข้อมูล</h2>
             <div class="search-bar">
-                <form action="/user/searchbar" method="get">
+                <form action="/staff/searchbar" method="get">
                     <label for="search">ค้นหา:</label>
                     <input type="text" id="search" name="search" value="<%= searchTerm || '' %>">
                     <button type="submit">Search</button>
@@ -42,7 +41,7 @@
                     <ul>
                         <% faqs.forEach(faq => { %>
                             <li>
-                                <a href="/user/search/<%= faq.knowledge_base_id %>"><%= faq.title %></a>
+                                <a href="/staff/search/<%= faq.knowledge_base_id %>"><%= faq.title %></a>
                             </li>
                         <% }) %>
                     </ul>
