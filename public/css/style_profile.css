@@ -19,57 +19,65 @@ body {
     z-index: -1;
 }
 
-h1 {
-    text-align: center;
-    font-size: 24px;
+.login-container {
+    background: rgba(55, 55, 55, 0.1);
+    border-radius: 10px;
+    padding: 20px;
+    width: 350px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    border: 1px solid white;
+}
+.login-form label{
+    text-align: left;
     color: white;
-    margin-top: 50px;
+}
+
+.info {
+    margin-bottom: 50px;
+}
+
+.login-container h1 {
+    text-align: center;
+    font-size: 30px;
+    color: white;
+    margin-top: 30px;
     margin-bottom: 10px;
 }
-p {
+
+.login-container p {
+    text-align: center;
+    font-size: 15px;
+    color: white;
+    margin-bottom: 10px;
+}
+
+.login-container h3 {
     text-align: center;
     font-size: 16px;
     color: white;
     margin-bottom: 20px;
 }
-
-.form-group {
-    display: flex;
-    align-items: center;
-    margin: 10px 0;
-}
-
-.register-container {
-    background: rgba(55, 55, 55, 0.1);
-    border-radius: 10px;
-    padding: 20px;
-    width: 450px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-    text-align: center;
-    border: 1px solid white;
-}
-.form-group label{
-    width: 120px;
-    text-align: left;
-    font-size: 15px;
-    color: white;
-}
-
-
-.form-group input {
-    flex: 1;
+.login-container input[type="text"],
+.login-container input[type="password"] {
+    width: 100%;
     padding: 10px;
-    margin: 5px 0 10px;
+    margin: 10px 0;
+    margin-bottom: 20px;
     border: 1px solid rgba(255, 255, 255, 0.5);
     border-radius: 5px;
     box-sizing: border-box;
     background: rgba(55, 55, 55, 0.1);
     color: white;
 }
+.button-container {
+    text-decoration: none;
+    text-align: center;
+    display: block;
+    margin: 10px 0;
+}
 
-.register-form button {
-    margin-top: 30px;
-    margin-bottom: 30px;
+#change-password{
+    margin-bottom: 15px;
     width: 45%;
     padding: 10px;
     border: 1px solid white;
@@ -80,6 +88,17 @@ p {
     cursor: pointer;
 }
 
-.register-form button:hover {
+#log-out{
+    width: 30%;
+    padding: 10px;
+    border: 1px solid white;
+    border-radius: 5px;
+    background: rgba(55, 55, 55, 0.1);
+    color: white;
+    text-align: center;
+    cursor: pointer;
+}
+
+.login-container button:hover {
     background: rgba(255, 255, 255, 0.1);
 }

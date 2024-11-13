@@ -51,10 +51,10 @@ app.get('/', (req, res) => {
 app.post('/login', (req, res) => {
   const { username, password } = req.body;
 
-  // Query the database to check if the user exists
-  const query = 'SELECT * FROM users WHERE username = ? AND password = ?';
+  // Query the database to check if the user exists with the given username or email and password
+  const query = 'SELECT * FROM users WHERE (username = ? OR email = ?) AND password = ?';
 
-  db.query(query, [username, password], (err, results) => {
+  db.query(query, [username, username, password], (err, results) => {
     if (err) {
       console.error('Database query error:', err);
       return res.render('login', { error: 'An error occurred' });
@@ -70,7 +70,7 @@ app.post('/login', (req, res) => {
         role: user.role
       };
 
-      // ตรวจสอบว่าข้อมูล session ถูกตั้งค่า
+      // Log session info for debugging
       console.log('Session after login:', req.session);
 
       // Redirect to the appropriate dashboard
@@ -87,6 +87,7 @@ app.post('/login', (req, res) => {
     }
   });
 });
+
 
 
 app.get('/register', (req, res) => {

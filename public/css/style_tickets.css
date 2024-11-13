@@ -3,6 +3,7 @@ body {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    background-color: #BDC9D5;
 }
 .container {
     display: flex;
@@ -11,6 +12,7 @@ body {
 .sidebar {
     width: 200px;
     border-right: 1px solid #000;
+    background-color: #0A1F33;
     padding: 20px;
     display: flex;
     flex-direction: column;
@@ -18,7 +20,9 @@ body {
 }
 .sidebar h1 {
     font-size: 24px;
+    color: white;
     margin: 0 0 20px 0;
+    margin-bottom: 40px;
 }
 .sidebar ul {
     list-style: none;
@@ -29,23 +33,42 @@ body {
 }
 .sidebar ul li a {
     text-decoration: none;
-    color: #000;
+    color: #ffffff;
     font-size: 20px;
     display: flex;
     align-items: center;
 }
+
+.sidebar i{
+    color: #000000;
+}
+
 .sidebar ul li a i {
     margin-right: 10px;
     font-size: 22px;
 }
-.sidebar ul li.active a {
+
+.sidebar ul li.active {
     font-weight: bold;
-    background-color: #f0f0f0;
+    background-color: #BDC9D5;
+    color: #000000;
+    padding: 5px;
+    border-radius: 5px;
+}
+
+.sidebar a.active {
+    color: #000000;
+}
+
+
+.sidebar ul li:hover {
+    font-weight: bold;
+    background-color: rgb(189, 201, 213, 0.5);
     padding: 5px;
     border-radius: 5px;
 }
 .profile {
-    font-size: 36px;
+    font-size: 45px;
     text-align: center;
 }
 .content {
@@ -56,19 +79,22 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 1px solid #000;
     padding-bottom: 10px;
 }
 .header h2 {
     font-size: 24px;
     margin: 0;
 }
+
 .header .new-ticket {
-    border: 1px solid #000;
-    padding: 5px 10px;
+    padding: 10px 20px;
+    background-color: #ff0;
+    border: none;
+    border-radius: 5px;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
     text-decoration: none;
-    color: #000;
-    font-size: 18px;
+    color: black;
+    cursor: pointer;
 }
 .search-bar {
     display: flex;
@@ -76,14 +102,17 @@ body {
     border: 1px solid #000;
     padding: 5px;
     margin: 20px 0;
+    background-color: #97A0AA;
 }
 .search-bar input {
     border: none;
     outline: none;
     flex-grow: 1;
     font-size: 18px;
+    background-color: #97A0AA;
 }
 .search-bar select {
+    background-color: #97A0AA;
     border: none;
     outline: none;
     font-size: 18px;
@@ -94,6 +123,8 @@ body {
 }
 .ticket-list {
     border: 1px solid #000;
+    background-color: #97A0AA;
+    border-radius: 5px;
     padding: 10px;
 }
 .ticket-header {
@@ -123,7 +154,7 @@ body {
 
 .ticket-header, .ticket-item {
     display: grid;
-    grid-template-columns: 2fr 0.5fr 0.5fr 0.2fr; /* Adjust these values based on your preferred column widths */
+    grid-template-columns: 2fr 0.5fr 0.5fr 0.3fr; /* Adjust these values based on your preferred column widths */
     text-align: left;
     padding: 10px;
 }
@@ -162,15 +193,25 @@ a {
 
 
 .header .return-button {
-    border: 1px solid #000;
-    padding: 5px 10px;
-    background: none;
+    background-color: #97A0AA;
+    color: #263238;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
     cursor: pointer;
-    font-size: 18px;
+    text-decoration: none;
+    display: inline-block;
+    margin-bottom: 20px;
 }
+.header .return-button:hover {
+    background-color: #7d858d;
+}
+
 .form-container {
     border: 1px solid black;
     padding: 20px;
+    border-radius: 5px;
+    background-color: #A2ABB6;
 }
 .form-container label {
     display: block;
@@ -182,18 +223,22 @@ a {
     border: 1px solid black;
     margin-bottom: 20px;
     padding: 5px;
+    background-color: #8D949D;
 }
 .form-container textarea {
     height: 150px;
 }
 .form-container .create-button {
-    border: 1px solid #000;
-    padding: 5px 10px;
-    background: none;
+    background-color: #1e88e5;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
     cursor: pointer;
-    font-size: 18px;
 }
-
+.content .form-container button:hover {
+    background-color: #1565c0;
+}
 .no-tickets {
     color: red;
     text-align: center;

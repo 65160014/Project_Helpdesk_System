@@ -3,6 +3,7 @@ body {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    background-color: #BDC9D5;
 }
 .container {
     display: flex;
@@ -11,6 +12,7 @@ body {
 .sidebar {
     width: 200px;
     border-right: 1px solid #000;
+    background-color: #0A1F33;
     padding: 20px;
     display: flex;
     flex-direction: column;
@@ -18,7 +20,9 @@ body {
 }
 .sidebar h1 {
     font-size: 24px;
+    color: white;
     margin: 0 0 20px 0;
+    margin-bottom: 40px;
 }
 .sidebar ul {
     list-style: none;
@@ -29,23 +33,42 @@ body {
 }
 .sidebar ul li a {
     text-decoration: none;
-    color: #000;
+    color: #ffffff;
     font-size: 20px;
     display: flex;
     align-items: center;
 }
+
+.sidebar i{
+    color: #000000;
+}
+
 .sidebar ul li a i {
     margin-right: 10px;
     font-size: 22px;
 }
-.sidebar ul li.active a {
+
+.sidebar ul li.active {
     font-weight: bold;
-    background-color: #f0f0f0;
+    background-color: #BDC9D5;
+    color: #000000;
+    padding: 5px;
+    border-radius: 5px;
+}
+
+.sidebar a.active {
+    color: #000000;
+}
+
+
+.sidebar ul li:hover {
+    font-weight: bold;
+    background-color: rgb(189, 201, 213, 0.5);
     padding: 5px;
     border-radius: 5px;
 }
 .profile {
-    font-size: 36px;
+    font-size: 45px;
     text-align: center;
 }
 .profile i{
@@ -89,7 +112,7 @@ body {
     border-right: none;
 }
 .tabs button.active {
-    background-color: #ccc;
+    background-color: #97A0AA;
 }
 .stats {
     display: flex;
@@ -101,6 +124,7 @@ body {
     padding: 20px;
     border: 1px solid #ccc;
     text-align: center;
+    background-color: white;
 }
 
 /* Form styling */

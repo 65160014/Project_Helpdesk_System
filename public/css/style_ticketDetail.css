@@ -1,9 +1,9 @@
-
 body {
     font-family: 'Arial', sans-serif;
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    background-color: #BDC9D5;
 }
 .container {
     display: flex;
@@ -12,6 +12,7 @@ body {
 .sidebar {
     width: 200px;
     border-right: 1px solid #000;
+    background-color: #0A1F33;
     padding: 20px;
     display: flex;
     flex-direction: column;
@@ -19,7 +20,9 @@ body {
 }
 .sidebar h1 {
     font-size: 24px;
+    color: white;
     margin: 0 0 20px 0;
+    margin-bottom: 40px;
 }
 .sidebar ul {
     list-style: none;
@@ -30,23 +33,41 @@ body {
 }
 .sidebar ul li a {
     text-decoration: none;
-    color: #000;
+    color: #ffffff;
     font-size: 20px;
     display: flex;
     align-items: center;
 }
+
+.sidebar i{
+    color: #000000;
+}
+
 .sidebar ul li a i {
     margin-right: 10px;
     font-size: 22px;
 }
-.sidebar ul li.active a {
+.sidebar ul li.active {
     font-weight: bold;
-    background-color: #f0f0f0;
+    background-color: #BDC9D5;
+    color: #000000;
+    padding: 5px;
+    border-radius: 5px;
+}
+
+.sidebar a.active {
+    color: #000000;
+}
+
+.sidebar ul li:hover {
+    font-weight: bold;
+    background-color: rgb(189, 201, 213, 0.5);
+    color: #000000;
     padding: 5px;
     border-radius: 5px;
 }
 .profile {
-    font-size: 36px;
+    font-size: 45px;
     text-align: center;
 }
 
@@ -63,7 +84,7 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 1px solid #ccc;
+    border-bottom: 2px solid #000000;
     padding-bottom: 10px;
     margin-bottom: 20px;
 }
@@ -74,10 +95,7 @@ body {
     color: #000;
     font-size: 24px;
 }
-.top-bar .right-icons {
-    display: flex;
-    align-items: center;
-}
+
 .top-bar .right-icons span {
     font-size: 20px;
     margin-right: 10px;
@@ -85,6 +103,7 @@ body {
 .ticket-title {
     font-size: 18px;
     margin: 0;
+    border-bottom: 2px solid #000000;
 }
 .ticket-meta {
     display: flex;
