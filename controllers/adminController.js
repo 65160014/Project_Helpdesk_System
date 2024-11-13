@@ -69,7 +69,7 @@ exports.getDashboard = (req, res) => {
                   stats.closedTickets = results[0].count;
 
                   // Fetch reports
-                  db.query("SELECT * FROM report WHERE status = 'show'", (error, reportResults) => {
+                  db.query("SELECT * FROM report", (error, reportResults) => {
                     if (error) {
                       console.error("Error fetching reports:", error.message);
                       return res.status(500).send("Error fetching reports");
