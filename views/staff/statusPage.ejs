@@ -29,10 +29,10 @@
             </div>
             <!-- Search Form -->
              <div class="search-bar">
-                <form method="GET" action="/staff/status/<%= status %>" style="margin-bottom: 20px;">
+                <form method="GET" action="/staff/tickets/status/<%= status %>">
                     <input type="text" name="search" placeholder="Search by ticket title" value="<%= searchTerm %>">
                     <button type="submit"><i class="fas fa-search"></i> Search</button>
-                </form>
+                </form>                
             </div>
         <!-- views/staff/status.ejs -->
         <!-- Check if there are tickets -->
@@ -44,13 +44,14 @@
             <ul>
                 <% tickets.forEach(ticket => { %>
                     <li>
-                        <div class="title">
-                            <a href="/staff/tickets/<%= ticket.ticket_id %>"><%= ticket.title %></a>
+                        <div class="ticket">
+                            <div class="title">
+                                <a href="/staff/tickets/<%= ticket.ticket_id %>"><%= ticket.title %></a>
+                            </div>
+                            <p><%= ticket.description %></p>
+                            <h4>Status: <%= ticket.status %></h4>
                         </div>
-                        <p><%= ticket.description %></p>
-                        <h4>Status: <%= ticket.status %></h4>
                     </li>
-                    <hr>
                 <% }) %>
             </ul>
         <% } %>

@@ -40,21 +40,21 @@ exports.createTicket = (req, res) => {
 // viewTickets ฟังก์ชันดึงตั๋วที่เป็นของผู้ใช้ที่ล็อกอิน
 exports.viewTickets = (req, res) => {
   const userId = parseInt(req.session.user?.user_id, 10);
-  const page = parseInt(req.query.page) || 1;
-  const limit = 10;
-  const offset = (page - 1) * limit;
-
-  const searchTerm = req.query.search || ''; // รับค่าจาก search bar
-  const status = req.query.status || 'all'; // รับค่าจาก select filter
+  const searchTerm = req.query.search || ''; // Get value from search bar
+  const status = req.query.status || 'all'; // Get value from select filter
 
   if (!userId) {
     return res.status(401).send('User not logged in');
   }
 
-  let query = `SELECT ticket_id, title, status, created_at, IFNULL(updated_at, created_at) AS display_updated_at
-               FROM tickets WHERE user_id = ? AND title LIKE ?`;
+  let query = `
+    SELECT ticket_id, title, status, created_at, IFNULL(updated_at, created_at) AS display_updated_at
+    FROM tickets
+    WHERE user_id = ? AND title LIKE ?
+  `;
   let params = [userId, `%${searchTerm}%`];
 
+  // Apply status filter based on the selected status
   switch (status) {
     case 'open':
       query += ' AND status IN (?, ?)';
@@ -74,36 +74,24 @@ exports.viewTickets = (req, res) => {
       break;
   }
 
-  query += ' ORDER BY created_at DESC LIMIT ? OFFSET ?';
-  params.push(limit, offset);
+  // Order the results by creation date
+  query += ' ORDER BY created_at DESC';
 
+  // Execute the main query to fetch tickets
   db.query(query, params, (error, results) => {
     if (error) {
       console.error('Database query error:', error);
       return res.status(500).send('Error retrieving tickets');
     }
 
-    db.query(`SELECT COUNT(*) AS total FROM tickets WHERE user_id = ? AND title LIKE ?`, 
-      [userId, `%${searchTerm}%`], (countError, countResults) => {
-      
-      if (countError) {
-        console.error('Count query error:', countError);
-        return res.status(500).send('Error counting tickets');
-      }
-
-      const totalTickets = countResults[0].total;
-      const totalPages = Math.ceil(totalTickets / limit);
-
-      res.render('user/tickets', {
-        tickets: results,
-        currentPage: page,
-        totalPages: totalPages,
-        searchTerm: searchTerm, // ส่ง searchTerm ไปยัง view
-        status: status // ส่ง status ไปยัง view
-      });
+    res.render('user/tickets', {
+      tickets: results,
+      searchTerm: searchTerm, // Send search term to the view
+      status: status // Send status to the view
     });
   });
 };
+
 
 
 

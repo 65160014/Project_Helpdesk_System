@@ -66,14 +66,6 @@
                     <% }); %>
                 <% } %>
             </div>
-            <div class="pagination">
-                <% if (currentPage > 1) { %>
-                    <a href="/user/tickets?page=<%= currentPage - 1 %>">Previous</a>
-                <% } %>
-                <% if (currentPage < totalPages) { %>
-                    <a href="/user/tickets?page=<%= currentPage + 1 %>">Next</a>
-                <% } %>
-            </div>
         </div>
     </div>
 </body>

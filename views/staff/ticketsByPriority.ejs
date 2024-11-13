@@ -27,13 +27,16 @@
         <div class="header">
             <h2><%= priority.charAt(0).toUpperCase() + priority.slice(1) %> Tickets</h2>
         </div>
+        
         <!-- Search Form -->
         <div class="search-bar">
-            <form method="GET" action="/staff/queue/<%= priority %>" class="search-form">
-                <input type="text" name="search" placeholder="Search by ticket title" value="<%= searchQuery %>" />
-                <button type="submit">Search</button>
+            <form method="GET" action="/staff/tickets/priority/<%= priority %>">
+                <input type="text" name="search" placeholder="Search by ticket title" value="<%= searchTerm %>" />
+                <button type="submit"><i class="fas fa-search"></i> Search</button>
             </form>
         </div>
+
+        
         <!-- Check if there are tickets -->
         <% if (tickets.length === 0) { %>
             <div class="no-tickets">
@@ -43,13 +46,15 @@
             <ul>
                 <% tickets.forEach(ticket => { %>
                     <li>
-                        <div class="title">
-                            <a href="/staff/tickets/<%= ticket.ticket_id %>"><%= ticket.title %></a>
+                        <div class="ticket">
+                            <div class="title">
+                                <a href="/staff/tickets/<%= ticket.ticket_id %>"><%= ticket.title %></a>
+                            </div>
+                            <p><%= ticket.description %></p>
+                            <h4>Status: <%= ticket.status %></h4>
                         </div>
-                        <p><%= ticket.description %></p>
-                        <h4>Status: <%= ticket.status %></h4>
                     </li>
-                    <hr>
+
                 <% }) %>
             </ul>
         <% } %>

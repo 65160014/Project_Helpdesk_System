@@ -28,6 +28,7 @@ router.get('/tickets/queue', checkStaffRole, staffController.queue);
 router.get('/tickets/priority/:priority', checkStaffRole, staffController.getTicketsByPriority);
 
 
+
 // // Route to display the list of FAQs
 router.get('/search', checkStaffRole, staffController.getFaqList);
 // // Route to display a single FAQ detail by ID

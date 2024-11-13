@@ -5,6 +5,11 @@ body {
     box-sizing: border-box;
     background-color: #BDC9D5;
 }
+.content {
+    flex: 1;
+    padding: 20px;
+    overflow: auto;
+}
 .container {
     display: flex;
     height: 100vh;
@@ -126,6 +131,8 @@ body {
     background-color: #97A0AA;
     border-radius: 5px;
     padding: 10px;
+    display: grid;
+    grid-template-columns: 1fr;
 }
 .ticket-header {
     display: flex;
@@ -169,7 +176,13 @@ body {
 }
 
 .ticket-item a {
+    text-decoration: none;
     color: #000;
+    flex-grow: 1;
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 
@@ -242,4 +255,23 @@ a {
 .no-tickets {
     color: red;
     text-align: center;
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        width: 100%;
+    }
+    
+    .ticket-header, .ticket-item {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .ticket-header span:nth-child(4),
+    .ticket-header span:nth-child(5),
+    .ticket-header span:nth-child(6),
+    .ticket-item a:nth-child(4),
+    .ticket-item a:nth-child(5),
+    .ticket-item a:nth-child(6) {
+        display: none;
+    }
 }

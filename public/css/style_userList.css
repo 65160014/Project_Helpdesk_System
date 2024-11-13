@@ -337,3 +337,28 @@ select:focus {
 #togglePassword:hover i {
     color: #0056b3; /* Darker color on hover */
 }
+
+.content {
+    flex: 1;
+    padding: 20px;
+    overflow: auto;
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        width: 100%;
+    }
+    
+    .ticket-header, .ticket-item {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .ticket-header span:nth-child(4),
+    .ticket-header span:nth-child(5),
+    .ticket-header span:nth-child(6),
+    .ticket-item a:nth-child(4),
+    .ticket-item a:nth-child(5),
+    .ticket-item a:nth-child(6) {
+        display: none;
+    }
+}

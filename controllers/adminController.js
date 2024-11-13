@@ -189,9 +189,6 @@ exports.updateReport = (req, res) => {
 
 
 exports.viewTickets = (req, res) => {
-  const page = parseInt(req.query.page) || 1;
-  const limit = 10;
-  const offset = (page - 1) * limit;
   const { status, priority } = req.query;
 
   // Base query with filters for both status and priority
@@ -237,9 +234,8 @@ exports.viewTickets = (req, res) => {
       params.push(priority);
   }
 
-  // Complete the query with ordering, limit, and offset
-  query += ` ORDER BY tickets.created_at DESC LIMIT ? OFFSET ?`;
-  params.push(limit, offset);
+  // Complete the query with ordering only
+  query += ` ORDER BY tickets.created_at DESC`;
 
   // Execute the main query
   db.query(query, params, (error, results) => {
@@ -248,53 +244,11 @@ exports.viewTickets = (req, res) => {
           return res.status(500).send('Error retrieving tickets');
       }
 
-      // Count query that respects status and priority filters for pagination
-      let countQuery = `SELECT COUNT(*) AS total FROM tickets LEFT JOIN queue ON tickets.queue_id = queue.queue_id WHERE 1=1`;
-      let countParams = [];
-
-      // Apply status and priority filters to the count query
-      if (status && status !== 'all') {
-          switch (status) {
-              case 'open':
-                  countQuery += ` AND tickets.status IN (?, ?)`;
-                  countParams.push('New', 'Reopened');
-                  break;
-              case 'pending':
-                  countQuery += ` AND tickets.status IN (?, ?, ?)`;
-                  countParams.push('In Progress', 'Pending', 'Assigned');
-                  break;
-              case 'resolved':
-                  countQuery += ` AND tickets.status = ?`;
-                  countParams.push('Resolved');
-                  break;
-              case 'closed':
-                  countQuery += ` AND tickets.status = ?`;
-                  countParams.push('Closed');
-                  break;
-          }
-      }
-
-      if (priority && priority !== 'all') {
-          countQuery += ` AND queue.priority = ?`;
-          countParams.push(priority);
-      }
-
-      db.query(countQuery, countParams, (countError, countResults) => {
-          if (countError) {
-              console.error('Count query error:', countError);
-              return res.status(500).send('Error counting tickets');
-          }
-
-          const totalTickets = countResults[0].total;
-          const totalPages = Math.ceil(totalTickets / limit);
-
-          res.render('admin/tickets', {
-              tickets: results,
-              currentPage: page,
-              totalPages: totalPages,
-              selectedStatus: status || 'all',
-              selectedPriority: priority || 'all'
-          });
+      // No need for count query since we're displaying all tickets
+      res.render('admin/tickets', {
+          tickets: results,
+          selectedStatus: status || 'all',
+          selectedPriority: priority || 'all'
       });
   });
 };
@@ -581,40 +535,48 @@ exports.getTicketsByStatus = (req, res) => {
       res.render('admin/statusPage', { tickets: results, status, searchTerm }); // Pass searchTerm to the view
   });
 };
+
+
 exports.getTicketsByPriority = (req, res) => {
-const priority = req.params.priority;
-const searchQuery = req.query.search || ''; // Get the search query from the request
-let queueId;
+  const priority = req.params.priority;  // รับค่าจาก URL เช่น 'low', 'medium', 'high', 'urgent'
+  const searchQuery = req.query.search || '';  // รับคำค้นหาจาก query string
 
-// Map priority name to queue_id
-switch (priority) {
-    case 'low':
-        queueId = 1; // Assuming Low has queue_id 1
-        break;
-    case 'medium':
-        queueId = 2; // Assuming Medium has queue_id 2
-        break;
-    case 'high':
-        queueId = 3; // Assuming High has queue_id 3
-        break;
-    case 'urgent':
-        queueId = 4; // Assuming Urgent has queue_id 4
-        break;
-    default:
-        return res.status(400).send('Invalid priority');
-}
+  // ค้นหา queue_id จากฐานข้อมูลที่ตรงกับ priority
+  const queueQuery = 'SELECT queue_id FROM queue WHERE priority = ?';
 
-// SQL query to get tickets with the selected queue_id and matching the search query
-const query = 'SELECT * FROM tickets WHERE queue_id = ? AND title LIKE ?';
+  db.query(queueQuery, [priority], (queueError, queueResults) => {
+      if (queueError) {
+          console.error('Error retrieving queue_id:', queueError);
+          return res.status(500).send('Server Error');
+      }
 
-db.query(query, [queueId, `%${searchQuery}%`], (error, results) => {
-    if (error) {
-        console.error('Database query error:', error);
-        return res.status(500).send('Server Error');
-    }
-    res.render('admin/ticketsByPriority', { tickets: results, priority, searchQuery });
-});
+      if (!queueResults || queueResults.length === 0) {
+          // ถ้าไม่พบ queue_id ที่ตรงกับ priority
+          console.log(`No queue found for priority: ${priority}`);
+          return res.render('admin/ticketsByPriority', { tickets: [], priority, searchQuery });
+      }
+
+      // ดึง queue_id ทั้งหมดที่ตรงกับ priority
+      const queueIds = queueResults.map(result => result.queue_id);  // ดึง array ของ queue_id
+
+      console.log('Queue IDs:', queueIds);  // เพิ่ม log เพื่อดู queue_ids ที่ได้
+
+      // คำสั่ง SQL เพื่อดึงข้อมูลตั๋วที่มี queue_id ที่ตรงกับค่าที่ได้จาก array queueIds
+      const query = 'SELECT * FROM tickets WHERE queue_id IN (?) AND title LIKE ?';
+
+      // รันคำสั่ง SQL เพื่อค้นหาตั๋ว
+      db.query(query, [queueIds, `%${searchQuery}%`], (error, results) => {
+          if (error) {
+              console.error('Database query error:', error);
+              return res.status(500).send('Server Error');
+          }
+
+          // ส่งผลลัพธ์กลับไปยัง view
+          res.render('admin/ticketsByPriority', { tickets: results, priority, searchQuery });
+      });
+  });
 };
+
 
 
 

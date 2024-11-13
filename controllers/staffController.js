@@ -271,126 +271,132 @@ exports.status = (req, res) => {
 };
 
 exports.getTicketsByStatus = (req, res) => {
-  const status = req.params.status;
-  const searchTerm = req.query.search || ''; // Get the search term from the query parameters
-  const { username } = req.session.user;  // Get the staff's username from the session
-  let query;
-  let params = [];
+    const status = req.params.status;
+    const searchTerm = req.query.search || ''; // คำค้นหาที่ส่งมาจาก query parameters
+    const { username } = req.session.user;  // ดึง username ของ staff ที่ login เข้ามา
+    let query;
+    let params = [];
 
-  // First, get staff_id for the logged-in user
-  db.query(
-      `SELECT staff_id FROM staff WHERE name = ?`,
-      [username],
-      (staffError, staffResults) => {
-          if (staffError || staffResults.length === 0) {
-              console.error('Error retrieving staff ID:', staffError);
-              return res.status(500).send('Error retrieving staff information');
+    // เริ่มจากการหา queue_id ที่มีชื่อ (name) ตรงกับ username ที่ login เข้ามา
+    db.query(
+        `SELECT queue_id FROM queue WHERE name = ?`,
+        [username],
+        (queueError, queueResults) => {
+          if (queueError || queueResults.length === 0) {
+            console.error('Error retrieving queue IDs:', queueError);
+            return res.status(500).send('Error retrieving queue information');
           }
-
-          const staff_id = staffResults[0].staff_id;
-
-          // Build the query based on status and staff_id
+      
+          // ดึง queue_id ทั้งหมดเป็นอาร์เรย์
+          const queueIds = queueResults.map(result => result.queue_id);
+      
+          // ปรับ query เพื่อให้ค้นหา tickets ที่มี queue_id อยู่ในอาร์เรย์ queueIds
           switch (status) {
-              case 'open':
-                  query = `SELECT * FROM tickets 
-                           JOIN staff_has_ticket ON staff_has_ticket.ticket_id = tickets.ticket_id
-                           WHERE tickets.status IN (?, ?) AND staff_has_ticket.staff_id = ? AND tickets.title LIKE ?`;
-                  params = ['New', 'Reopened', staff_id, `%${searchTerm}%`];
-                  break;
-              case 'pending':
-                  query = `SELECT * FROM tickets 
-                           JOIN staff_has_ticket ON staff_has_ticket.ticket_id = tickets.ticket_id
-                           WHERE tickets.status IN (?, ?, ?) AND staff_has_ticket.staff_id = ? AND tickets.title LIKE ?`;
-                  params = ['In Progress', 'Pending', 'Assigned', staff_id, `%${searchTerm}%`];
-                  break;
-              case 'resolved':
-                  query = `SELECT * FROM tickets 
-                           JOIN staff_has_ticket ON staff_has_ticket.ticket_id = tickets.ticket_id
-                           WHERE tickets.status = ? AND staff_has_ticket.staff_id = ? AND tickets.title LIKE ?`;
-                  params = ['Resolved', staff_id, `%${searchTerm}%`];
-                  break;
-              case 'closed':
-                  query = `SELECT * FROM tickets 
-                           JOIN staff_has_ticket ON staff_has_ticket.ticket_id = tickets.ticket_id
-                           WHERE tickets.status = ? AND staff_has_ticket.staff_id = ? AND tickets.title LIKE ?`;
-                  params = ['Closed', 'Escalated', staff_id, `%${searchTerm}%`];
-                  break;
-              default:
-                  return res.status(400).send('Invalid status');
+            case 'open':
+              query = `SELECT * FROM tickets 
+                       WHERE tickets.status IN (?, ?) AND tickets.queue_id IN (?) AND tickets.title LIKE ?`;
+              params = ['New', 'Reopened', queueIds, `%${searchTerm}%`];
+              break;
+            case 'pending':
+              query = `SELECT * FROM tickets 
+                       WHERE tickets.status IN (?, ?, ?) AND tickets.queue_id IN (?) AND tickets.title LIKE ?`;
+              params = ['In Progress', 'Pending', 'Assigned', queueIds, `%${searchTerm}%`];
+              break;
+            case 'resolved':
+              query = `SELECT * FROM tickets 
+                       WHERE tickets.status = ? AND tickets.queue_id IN (?) AND tickets.title LIKE ?`;
+              params = ['Resolved', queueIds, `%${searchTerm}%`];
+              break;
+            case 'closed':
+              query = `SELECT * FROM tickets 
+                       WHERE tickets.status = ? AND tickets.queue_id IN (?) AND tickets.title LIKE ?`;
+              params = ['Closed', queueIds, `%${searchTerm}%`];
+              break;
+            default:
+              return res.status(400).send('Invalid status');
           }
-
-          // Execute the query
+      
+          // รันคำสั่ง query
           db.query(query, params, (error, results) => {
               if (error) {
                   console.error('Database query error:', error);
                   return res.status(500).send('Server Error');
               }
+            //   console.log("Query Results:", results); // ตรวจสอบจำนวน ticket ที่ถูกดึงมา
               res.render('staff/statusPage', { tickets: results, status, searchTerm });
           });
-      }
-  );
+        }
+      );
 };
+
+  
 
 exports.queue = (req, res) => {
   res.render('staff/queue');
 };
-
 exports.getTicketsByPriority = (req, res) => {
-  const priority = req.params.priority;
-  const searchQuery = req.query.search || ''; // Get the search query from the request
-  const { username } = req.session.user;  // Get the staff's username from the session
-  let queueId;
-  let query;
-  let params = [];
+    const priority = req.params.priority;  // ค่าจาก URL เช่น 'low', 'medium', 'high', 'urgent'
+    let searchTerm = req.query.search || '';  // ดึงคำค้นหาจาก query string, กำหนดเป็นค่าว่างถ้าไม่มี
 
-  // Map priority name to queue_id
-  switch (priority) {
-      case 'low':
-          queueId = 1; // Assuming Low has queue_id 1
-          break;
-      case 'medium':
-          queueId = 2; // Assuming Medium has queue_id 2
-          break;
-      case 'high':
-          queueId = 3; // Assuming High has queue_id 3
-          break;
-      case 'urgent':
-          queueId = 4; // Assuming Urgent has queue_id 4
-          break;
-      default:
-          return res.status(400).send('Invalid priority');
-  }
+    const { username } = req.session.user;  // ดึง username ของพนักงานที่ login เข้ามา
 
-  // First, get staff_id for the logged-in user
-  db.query(
-      `SELECT staff_id FROM staff WHERE name = ?`,
-      [username],
-      (staffError, staffResults) => {
-          if (staffError || staffResults.length === 0) {
-              console.error('Error retrieving staff ID:', staffError);
-              return res.status(500).send('Error retrieving staff information');
+    let query;
+    let params = [];
+
+    // ค้นหาทุก queue_id ที่ตรงกับ username และ priority ที่กำหนด
+    db.query(
+      `SELECT queue_id FROM queue WHERE name = ? AND priority = ?`,
+      [username, priority], // ใช้ username และ priority เพื่อค้นหาค่า queue_id
+      (queueError, queueResults) => {
+        if (queueError) {
+          console.error('Error retrieving queue information:', queueError);
+          return res.status(500).send('Error retrieving queue information');
+        }
+
+        if (!queueResults || queueResults.length === 0) {
+          // ถ้าไม่พบ queue_id ให้ส่ง 0 กลับไปแทน
+          console.log('No queue found for the given username and priority.');
+          return res.render('staff/ticketsByPriority', { tickets: [], priority, searchTerm });
+        }
+
+        const queueIds = queueResults.map(result => result.queue_id);  // ได้ queue_id ที่ตรงกับ username และ priority
+        console.log('Queue IDs retrieved:', queueIds);  // ล็อกค่า queueIds
+
+        // สร้างคำสั่ง SQL เพื่อดึง ticket ที่ตรงกับ queue_id และคำค้นหาใน title
+        query = `
+          SELECT tickets.* 
+          FROM tickets 
+          WHERE tickets.queue_id IN (?) AND tickets.title LIKE ? 
+        `;
+        
+        // ถ้า searchTerm เป็นค่าว่าง, ใช้ '%' สำหรับการค้นหาทุก ticket
+        const searchPattern = searchTerm ? `%${searchTerm}%` : '%';
+        
+        params = [queueIds, searchPattern];
+
+        // รันคำสั่ง query
+        db.query(query, params, (error, results) => {
+          if (error) {
+            console.error('Database query error:', error);
+            return res.status(500).send('Server Error');
           }
 
-          const staff_id = staffResults[0].staff_id;
+          if (results.length === 0) {
+            // ถ้าไม่พบ ticket ที่ตรงกับเงื่อนไข ให้ส่ง 0 กลับไปแทน
+            console.log('No tickets found for the specified priority and queue.');
+            return res.render('staff/ticketsByPriority', { tickets: [], priority, searchTerm });
+          }
 
-          // SQL query to get tickets with the selected queue_id, matching the search query, and assigned to the staff
-          query = `SELECT tickets.* 
-                   FROM tickets 
-                   JOIN staff_has_ticket ON tickets.ticket_id = staff_has_ticket.ticket_id
-                   WHERE tickets.queue_id = ? AND staff_has_ticket.staff_id = ? AND tickets.title LIKE ?`;
+          console.log(`Found ${results.length} tickets matching the criteria.`);
 
-          params = [queueId, staff_id, `%${searchQuery}%`];
-
-          db.query(query, params, (error, results) => {
-              if (error) {
-                  console.error('Database query error:', error);
-                  return res.status(500).send('Server Error');
-              }
-              res.render('staff/ticketsByPriority', { tickets: results, priority, searchQuery });
-          });
+          // ส่งผลลัพธ์ไปยัง view
+          res.render('staff/ticketsByPriority', { tickets: results, priority, searchTerm });
+        });
       }
-  );
+    );
 };
+
+
 
 exports.getFaqList = (req, res) => {
     const query = 'SELECT knowledge_base_id, title FROM knowledgebase';
