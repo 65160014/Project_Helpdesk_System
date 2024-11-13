@@ -3,6 +3,7 @@ body {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    background-color: #BDC9D5;
 }
 .container {
     display: flex;
@@ -11,6 +12,7 @@ body {
 .sidebar {
     width: 200px;
     border-right: 1px solid #000;
+    background-color: #0A1F33;
     padding: 20px;
     display: flex;
     flex-direction: column;
@@ -18,8 +20,16 @@ body {
 }
 .sidebar h1 {
     font-size: 24px;
+    color: white;
     margin: 0 0 20px 0;
+    margin-bottom: 40px;
 }
+
+.sidebar h3 {
+    font-size: 18px;
+    color: white;
+}
+
 .sidebar ul {
     list-style: none;
     padding: 0;
@@ -29,24 +39,46 @@ body {
 }
 .sidebar ul li a {
     text-decoration: none;
-    color: #000;
+    color: #ffffff;
     font-size: 20px;
     display: flex;
     align-items: center;
 }
+
+.sidebar i{
+    color: #000000;
+}
+
 .sidebar ul li a i {
     margin-right: 10px;
     font-size: 22px;
 }
-.sidebar ul li.active a {
+
+.sidebar ul li.active {
     font-weight: bold;
-    background-color: #f0f0f0;
+    background-color: #BDC9D5;
+    color: #000000;
+    padding: 5px;
+    border-radius: 5px;
+}
+
+.sidebar a.active {
+    color: #000000;
+}
+
+
+.sidebar ul li:hover {
+    font-weight: bold;
+    background-color: rgb(189, 201, 213, 0.5);
     padding: 5px;
     border-radius: 5px;
 }
 .profile {
-    font-size: 36px;
+    font-size: 45px;
     text-align: center;
+}
+.profile i{
+    color: #000;
 }
 .content {
     flex-grow: 1;
@@ -65,11 +97,14 @@ body {
 }
 
 .header .new-user {
-    border: 1px solid #000;
-    padding: 5px 10px;
+    padding: 10px 20px;
+    background-color: #ff0;
+    border: none;
+    border-radius: 5px;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
     text-decoration: none;
-    color: #000;
-    font-size: 18px;
+    color: black;
+    cursor: pointer;
 }
 
 /* Button styles */
@@ -111,14 +146,22 @@ body {
     width: 300px;
     padding: 5px;
     margin-right: 10px;
-    border: 1px solid #000;
+    border: none;
+    background-color: white;
 }
 .search-bar button {
-    padding: 5px 10px;
-    border: 1px solid #000;
-    background-color: #fff;
+    background-color: #1e88e5;
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
     cursor: pointer;
 }
+
+.search-bar button:hover {
+    background-color: #1565c0;
+}
+
 
 .user-list {
     border: 1px solid #000;
@@ -207,6 +250,8 @@ a {
     border: 1px solid #000;
     padding: 10px;
     margin-bottom: 10px;
+    border-radius: 5px;
+    background-color: #97A1AA;
 }
 .role-user-list li .priority {
     display: flex;
@@ -238,8 +283,7 @@ a {
 label {
     display: block; /* Block display for labels */
     margin-bottom: 5px; /* Space below labels */
-    font-weight: bold; /* Bold text for labels */
-    color: #555; /* Medium gray color */
+    color: #000000; /* Medium gray color */
 }
 
 /* Input and select styles */
@@ -249,8 +293,9 @@ input[type="password"],
 select {
     width: 100%; /* Full width */
     padding: 10px; /* Padding inside the inputs */
-    border: 1px solid #ccc; /* Light gray border */
+    border: none; /* Light gray border */
     border-radius: 4px; /* Rounded corners */
+    background-color: #97A0AA;
     font-size: 16px; /* Font size */
     box-sizing: border-box; /* Include padding in width calculation */
     transition: border-color 0.3s; /* Transition for border color */
@@ -261,7 +306,6 @@ input[type="text"]:focus,
 input[type="email"]:focus,
 input[type="password"]:focus,
 select:focus {
-    border-color: #007bff; /* Change border color on focus */
     outline: none; /* Remove outline */
 }
 

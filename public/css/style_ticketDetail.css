@@ -24,6 +24,12 @@ body {
     margin: 0 0 20px 0;
     margin-bottom: 40px;
 }
+
+.sidebar h3 {
+    font-size: 18px;
+    color: white;
+}
+
 .sidebar ul {
     list-style: none;
     padding: 0;
@@ -47,6 +53,7 @@ body {
     margin-right: 10px;
     font-size: 22px;
 }
+
 .sidebar ul li.active {
     font-weight: bold;
     background-color: #BDC9D5;
@@ -59,10 +66,10 @@ body {
     color: #000000;
 }
 
+
 .sidebar ul li:hover {
     font-weight: bold;
     background-color: rgb(189, 201, 213, 0.5);
-    color: #000000;
     padding: 5px;
     border-radius: 5px;
 }
@@ -70,11 +77,9 @@ body {
     font-size: 45px;
     text-align: center;
 }
-
-.sidebar .profile i{
+.profile i{
     color: #000;
 }
-
 .content {
     flex: 1;
     padding: 20px;

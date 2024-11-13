@@ -50,13 +50,14 @@
             <ul>
                 <% tickets.forEach(ticket => { %>
                     <li>
-                        <div class="title">
-                            <a href="/admin/tickets/<%= ticket.ticket_id %>"><%= ticket.title %></a>
+                        <div class="ticket">
+                            <div class="title">
+                                <a href="/admin/tickets/<%= ticket.ticket_id %>"><%= ticket.title %></a>
+                            </div>
+                            <p><%= ticket.description %></p>
+                            <h4>Status: <%= ticket.status %></h4>
                         </div>
-                        <p><%= ticket.description %></p>
-                        <h4>Status: <%= ticket.status %></h4>
                     </li>
-                    <hr>
                 <% }) %>
             </ul>
         <% } %>

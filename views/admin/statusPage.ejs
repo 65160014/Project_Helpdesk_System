@@ -21,7 +21,7 @@
                 <hr>
                 <h3>Administration</h3>
                 <ul>
-                  <li class="active"><a href="/admin/status"><i class="fas fa-tasks"></i> Status</a></li>
+                  <li class="active"><a href="/admin/status" class="active"><i class="fas fa-tasks"></i> Status</a></li>
                   <li><a href="/admin/queue"><i class="fas fa-user-clock"></i> Queue</a></li>
                   <li><a href="/admin/userList"><i class="fas fa-users"></i> Users</a></li>
               </ul>
@@ -51,13 +51,15 @@
             <ul>
                 <% tickets.forEach(ticket => { %>
                     <li>
-                        <div class="title">
-                            <a href="/admin/tickets/<%= ticket.ticket_id %>"><%= ticket.title %></a>
+                        <div class="ticket">
+                            <div class="title">
+                                <a href="/admin/tickets/<%= ticket.ticket_id %>"><%= ticket.title %></a>
+                            </div>
+                            <p><%= ticket.description %></p>
+                            <h4>Status: <%= ticket.status %></h4>
                         </div>
-                        <p><%= ticket.description %></p>
-                        <h4>Status: <%= ticket.status %></h4>
                     </li>
-                    <hr>
+                    <!-- <hr> -->
                 <% }) %>
             </ul>
         <% } %>
