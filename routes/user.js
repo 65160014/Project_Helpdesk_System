@@ -21,7 +21,7 @@ router.post('/ticket/:ticket_id/set-status', userController.updateTicketStatus);
 // แสดงรายการคำถามที่พบบ่อย (FAQ)
 router.get('/search', userController.getFaqList);
 // แสดงรายละเอียดคำถามที่พบบ่อย (FAQ) โดยระบุ ID
-router.get('/search/:id', userController.getFaqDetail);
+router.get('/search/:faq_id', userController.getFaqDetail);
 // ค้นหาคำถามที่พบบ่อย (FAQ) โดยใช้คำค้นหาที่ส่งผ่าน query
 router.get('/searchbar', userController.searchFaqs);
 

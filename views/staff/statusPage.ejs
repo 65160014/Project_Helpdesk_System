@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= status %> Tickets</title>
+    <title><%= status.charAt(0).toUpperCase() + status.slice(1) %> Tickets</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="stylesheet" href="/css/style_status.css">
 </head>
@@ -28,33 +28,33 @@
                 <h2>Status - <%= status.charAt(0).toUpperCase() + status.slice(1) %></h2>
             </div>
             <!-- Search Form -->
-             <div class="search-bar">
+            <div class="search-bar">
                 <form method="GET" action="/staff/tickets/status/<%= status %>">
                     <input type="text" name="search" placeholder="Search by ticket title" value="<%= searchTerm %>">
                     <button type="submit"><i class="fas fa-search"></i> Search</button>
                 </form>                
             </div>
-        <!-- views/staff/status.ejs -->
-        <!-- Check if there are tickets -->
-        <% if (tickets.length === 0) { %>
-            <div class="no-tickets">
-                <p>No tickets found for this status.</p>
-            </div>
-        <% } else { %>
-            <ul>
-                <% tickets.forEach(ticket => { %>
-                    <li>
-                        <div class="ticket">
-                            <div class="title">
-                                <a href="/staff/ticket/<%= ticket.ticket_id %>"><%= ticket.title %></a>
+        
+            <!-- Check if tickets is empty or has results -->
+            <% if (tickets && tickets.length === 0) { %>
+                <div class="no-tickets">
+                    <p>No tickets found for this status.</p>
+                </div>
+            <% } else if (tickets) { %>
+                <ul>
+                    <% tickets.forEach(ticket => { %>
+                        <li>
+                            <div class="ticket">
+                                <div class="title">
+                                    <a href="/staff/ticket/<%= ticket.ticket_id %>"><%= ticket.title %></a>
+                                </div>
+                                <p><%= ticket.description %></p>
+                                <h4>Status: <%= ticket.status %></h4>
                             </div>
-                            <p><%= ticket.description %></p>
-                            <h4>Status: <%= ticket.status %></h4>
-                        </div>
-                    </li>
-                <% }) %>
-            </ul>
-        <% } %>
+                        </li>
+                    <% }) %>
+                </ul>
+            <% } %>
         </div>
     </div>
 </body>
