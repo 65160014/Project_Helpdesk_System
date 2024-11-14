@@ -3,36 +3,30 @@ const router = express.Router();
 const staffController = require('../controllers/staffController');
 const { checkStaffRole } = require('../middleware/authMiddleware');
 
-// Route to view tickets assigned to the logged-in staff member
+// Route สำหรับแสดงตั๋วที่ได้รับมอบหมายให้กับพนักงานที่ล็อกอิน
 router.get('/assigned-tickets', checkStaffRole, staffController.viewAssignedTickets);
-
-// Route to view the details of a specific ticket
+// Route สำหรับแสดงรายละเอียดของตั๋วที่เลือกตาม ticket_id
 router.get('/ticket/:ticket_id', checkStaffRole, staffController.viewTicketDetail);
-
-// Route to update the status of a ticket (assigned to the staff member)
+// Route สำหรับอัพเดตสถานะของตั๋วที่ได้รับมอบหมายให้พนักงาน
 router.post('/ticket/:ticket_id/set-status', checkStaffRole, staffController.setStatus);
-
-// Route to update the priority of a ticket (assigned to the staff member)
+// Route สำหรับอัพเดตความสำคัญ (priority) ของตั๋วที่ได้รับมอบหมายให้พนักงาน
 router.post('/tickets/:ticket_id/set-priority', checkStaffRole, staffController.setPriority);
 
-// Route สำหรับแสดงหน้า status
+
+// Route สำหรับแสดงหน้า status ของตั๋ว
 router.get('/tickets/status', checkStaffRole, staffController.status);
-
-// Route to view tickets by status for a specific staff member
+// Route สำหรับแสดงตั๋วที่กรองตามสถานะที่พนักงานเลือก เช่น open, pending, resolved, closed
 router.get('/tickets/status/:status', checkStaffRole, staffController.getTicketsByStatus);
-
-// Route สำหรับแสดงหน้า queue
+// Route สำหรับแสดงหน้า queue ของตั๋ว
 router.get('/tickets/queue', checkStaffRole, staffController.queue);
-
-// Route to view tickets by priority for a specific staff member
+// Route สำหรับแสดงตั๋วที่กรองตามความสำคัญ (priority) เช่น low, medium, high
 router.get('/tickets/priority/:priority', checkStaffRole, staffController.getTicketsByPriority);
 
-
-
-// // Route to display the list of FAQs
+// Route สำหรับแสดงรายการ FAQ ทั้งหมด
 router.get('/search', checkStaffRole, staffController.getFaqList);
-// // Route to display a single FAQ detail by ID
+// Route สำหรับแสดงรายละเอียด FAQ โดยใช้ knowledge_base_id
 router.get('/search/:id', checkStaffRole, staffController.getFaqDetail);
+// Route สำหรับค้นหา FAQ ด้วยคำค้นหาจาก search bar
 router.get('/searchbar', checkStaffRole, staffController.searchFaqs);
 
-module.exports = router;
+module.exports = router; 

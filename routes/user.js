@@ -2,28 +2,27 @@ const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/userController');
 
+// แสดงหน้าแดชบอร์ด
 router.get('/dashboard', userController.getDashboard);
+// แสดงรายละเอียดของรายงานตาม ID
 router.get('/report/:id', userController.getReportDetails);
 
+// แสดงหน้าเพิ่มตั๋วใหม่
 router.get('/newTickets', userController.newTicketsPage);
-
-// สร้าง Ticket ใหม่
+// สร้างตั๋วใหม่โดยส่งข้อมูลผ่าน POST
 router.post('/newTickets', userController.createTicket);
-
-// ดูรายการ Ticket ทั้งหมด
+// ดูรายการตั๋วทั้งหมดของผู้ใช้
 router.get('/tickets', userController.viewTickets);
-
+// ดูรายละเอียดของตั๋วตาม ID
 router.get('/tickets/:ticket_id', userController.viewTicketDetail);
-
-// เพิ่ม route สำหรับอัปเดตสถานะของ Ticket
+// เพิ่ม route สำหรับอัปเดตสถานะของตั๋ว
 router.post('/ticket/:ticket_id/set-status', userController.updateTicketStatus);
 
-
-
-// // Route to display the list of FAQs
+// แสดงรายการคำถามที่พบบ่อย (FAQ)
 router.get('/search', userController.getFaqList);
-// // Route to display a single FAQ detail by ID
+// แสดงรายละเอียดคำถามที่พบบ่อย (FAQ) โดยระบุ ID
 router.get('/search/:id', userController.getFaqDetail);
+// ค้นหาคำถามที่พบบ่อย (FAQ) โดยใช้คำค้นหาที่ส่งผ่าน query
 router.get('/searchbar', userController.searchFaqs);
 
 module.exports = router;

@@ -2,29 +2,33 @@ const db = require('../config/db');
 
 // ฟังก์ชันเพื่อดึงข้อมูลตั๋วตามช่วงเวลา
 exports.getDashboard = (req, res) => {
-  // Receive period from query string or default to 'daily'
+  // รับช่วงเวลาจาก query string หรือใช้ค่าเริ่มต้นเป็น 'daily' (รายวัน)
   const { period = 'daily' } = req.query;
 
-  // Calculate start date based on the period
+  // คำนวณวันที่เริ่มต้นตามช่วงเวลา
   let startDate;
   const currentDate = new Date();
   switch (period) {
     case 'daily':
+      // สำหรับรายวัน ตั้งค่าตั้งแต่เมื่อวาน
       startDate = new Date(currentDate.setDate(currentDate.getDate() - 1));
       break;
     case 'weekly':
+      // สำหรับรายสัปดาห์ ตั้งค่าเป็น 7 วันที่ผ่านมา
       startDate = new Date(currentDate.setDate(currentDate.getDate() - 7));
       break;
     case 'monthly':
+      // สำหรับรายเดือน ตั้งค่าเป็น 1 เดือนที่ผ่านมา
       startDate = new Date(currentDate.setMonth(currentDate.getMonth() - 1));
       break;
     default:
+      // ถ้าไม่มีค่าเริ่มต้น ใช้รายวัน
       startDate = new Date(currentDate.setDate(currentDate.getDate() - 1));
   }
 
   const stats = {};
 
-  // Query New Tickets (without status)
+  // Query ดึงข้อมูลตั๋วใหม่ (ตั๋วที่สร้างหลังจาก startDate)
   db.query(
     "SELECT COUNT(*) AS count FROM tickets WHERE created_at >= ?",
     [startDate],
@@ -35,7 +39,7 @@ exports.getDashboard = (req, res) => {
       }
       stats.newTickets = results[0].count;
 
-      // Query Open Tickets
+      // Query ดึงข้อมูลตั๋วที่เปิดอยู่ (Open, Reopened, Assigned, Pending) อัปเดตหลังจาก startDate
       db.query(
         "SELECT COUNT(*) AS count FROM tickets WHERE status IN ('Open', 'Reopened', 'Assigned', 'Pending') AND updated_at >= ?",
         [startDate],
@@ -46,7 +50,7 @@ exports.getDashboard = (req, res) => {
           }
           stats.pendingTickets = results[0].count;
 
-          // Query Resolved Tickets
+          // Query ดึงข้อมูลตั๋วที่ถูกแก้ไขแล้ว (Resolved)
           db.query(
             "SELECT COUNT(*) AS count FROM tickets WHERE status = 'Resolved' AND updated_at >= ?",
             [startDate],
@@ -57,7 +61,7 @@ exports.getDashboard = (req, res) => {
               }
               stats.resolvedTickets = results[0].count;
 
-              // Query Closed Tickets
+              // Query ดึงข้อมูลตั๋วที่ปิดไปแล้ว (Closed)
               db.query(
                 "SELECT COUNT(*) AS count FROM tickets WHERE status = 'Closed' AND updated_at >= ?",
                 [startDate],
@@ -68,21 +72,21 @@ exports.getDashboard = (req, res) => {
                   }
                   stats.closedTickets = results[0].count;
 
-                  // Fetch reports
+                  // Query ดึงข้อมูลรายงานทั้งหมด
                   db.query("SELECT * FROM report", (error, reportResults) => {
                     if (error) {
                       console.error("Error fetching reports:", error.message);
                       return res.status(500).send("Error fetching reports");
                     }
 
-                    // Render the dashboard view with the results
+                    // แสดงผลหน้าแดชบอร์ด พร้อมข้อมูลที่ได้รับ
                     res.render('admin/dashboard', {
                       period,
                       newTickets: stats.newTickets,
                       pendingTickets: stats.pendingTickets,
                       resolvedTickets: stats.resolvedTickets,
                       closedTickets: stats.closedTickets,
-                      reports: reportResults // Pass reports to the dashboard
+                      reports: reportResults // ส่งข้อมูลรายงานไปที่แดชบอร์ด
                     });
                   });
                 }
@@ -95,27 +99,21 @@ exports.getDashboard = (req, res) => {
   );
 };
 
+// ฟังก์ชันเพื่อแสดงฟอร์มการเพิ่มรายงาน
 exports.showAddReportForm = (req, res) => {
-  // Check if user information is stored in the session
-  if (!req.session.user || req.session.user.role !== 'admin') {
-      return res.status(403).send("Access denied. Admins only.");
-  }
 
-  const adminName = req.session.user.username; // Get username from session for display
+  const adminName = req.session.user.username; // ดึงชื่อผู้ดูแลจาก session
 
-  res.render('admin/addReport', { adminName }); // Pass adminName to the view
+  res.render('admin/addReport', { adminName }); // ส่งข้อมูลชื่อผู้ดูแลไปที่ view
 };
 
-
-
-
-
+// ฟังก์ชันสำหรับเพิ่มรายงานใหม่
 exports.addReport = (req, res) => {
-  // Ensure user is authenticated and has an admin role
+  // ตรวจสอบว่าผู้ใช้มีสิทธิ์เป็นผู้ดูแลระบบ
 
   const { title, content } = req.body;
   const adminName = req.session.user.username;
-  // Retrieve admin's username from session
+  // ดึงชื่อผู้ดูแลจาก session
 
   db.query(
       "INSERT INTO report (admin_name, title, content, status) VALUES (?, ?, ?, 'show')",
@@ -125,17 +123,14 @@ exports.addReport = (req, res) => {
               console.error("Error adding report:", error.message);
               return res.status(500).send("Error adding report");
           }
-          res.redirect('/admin/dashboard'); // Redirect back to dashboard after adding report
+          res.redirect('/admin/dashboard'); // กลับไปที่หน้าแดชบอร์ดหลังจากเพิ่มรายงานเสร็จ
       }
   );
 };
-
-
-
-// ดึงรายงานที่มีสถานะ show
+// ฟังก์ชันสำหรับดึงข้อมูลรายงานที่มีสถานะ 'show' เพื่อนำไปแสดงในหน้าแดชบอร์ด
 exports.getReports = (req, res) => {
   db.query(
-      "SELECT * FROM report WHERE status = 'show'",
+      "SELECT * FROM report WHERE status = 'show'", // Query เพื่อดึงข้อมูลรายงานที่แสดงผลอยู่
       (error, results) => {
           if (error) {
               console.error("Error fetching reports:", error.message);
@@ -148,50 +143,48 @@ exports.getReports = (req, res) => {
 
 // แสดงรายละเอียดรายงาน
 exports.getReportDetails = (req, res) => {
-  const reportId = req.params.id;
+  const reportId = req.params.id; // รับค่า reportId จาก URL
 
   db.query(
-      "SELECT * FROM report WHERE report_id = ?",
+      "SELECT * FROM report WHERE report_id = ?", // Query เพื่อดึงรายละเอียดรายงานตาม report_id
       [reportId],
       (error, results) => {
           if (error) {
               console.error("Error fetching report details:", error.message);
               return res.status(500).send("Error fetching report details");
           }
-          // Check if report is found
+          // ตรวจสอบว่าพบรายงานหรือไม่
           if (results.length === 0) {
               return res.status(404).send("Report not found");
           }
-          res.render('admin/reportDetails', { report: results[0] }); // Send report data to view
+          res.render('admin/reportDetails', { report: results[0] }); // ส่งข้อมูลรายงานไปที่ view
       }
   );
 };
 
-
-// แก้ไขรายงาน
+// ฟังก์ชันสำหรับแก้ไขรายงาน
 exports.updateReport = (req, res) => {
-  const reportId = req.params.id;
-  const { title, content, status } = req.body; // Include `status` from the form
+  const reportId = req.params.id; // รับค่า reportId จาก URL
+  const { title, content, status } = req.body; // รับข้อมูล title, content และ status จาก form
 
   db.query(
-      "UPDATE report SET title = ?, content = ?, status = ? WHERE report_id = ?",
+      "UPDATE report SET title = ?, content = ?, status = ? WHERE report_id = ?", // Query สำหรับอัปเดตข้อมูลรายงานตาม report_id
       [title, content, status, reportId],
       (error, results) => {
           if (error) {
               console.error("Error updating report:", error.message);
               return res.status(500).send("Error updating report");
           }
-          res.redirect(`/admin/dashboard`); // Redirect to report details page
+          res.redirect(`/admin/dashboard`); // กลับไปที่หน้าแดชบอร์ดหลังจากแก้ไขรายงานเสร็จ
       }
   );
 };
 
-
-
+// ฟังก์ชันสำหรับแสดงข้อมูลตั๋ว พร้อมตัวกรองตามสถานะและลำดับความสำคัญ
 exports.viewTickets = (req, res) => {
-  const { status, priority } = req.query;
+  const { status, priority } = req.query; // รับค่า status และ priority จาก query string
 
-  // Base query with filters for both status and priority
+  // Query พื้นฐานสำหรับดึงข้อมูลตั๋ว
   let query = `
       SELECT tickets.ticket_id, tickets.title, tickets.status, tickets.created_at, 
              IFNULL(tickets.updated_at, tickets.created_at) AS display_updated_at,
@@ -200,51 +193,51 @@ exports.viewTickets = (req, res) => {
       FROM tickets
       LEFT JOIN users ON tickets.user_id = users.user_id
       LEFT JOIN queue ON tickets.queue_id = queue.queue_id
-      WHERE 1=1`;
+      WHERE 1=1`; // ใช้ WHERE 1=1 เพื่อให้ง่ายในการเพิ่มเงื่อนไขใน query
 
   let params = [];
 
-  // Add status filter
+  // เพิ่มเงื่อนไขตัวกรองสถานะ
   if (status && status !== 'all') {
       switch (status) {
           case 'open':
-              query += ` AND tickets.status IN (?, ?)`;
+              query += ` AND tickets.status IN (?, ?)`; // ตัวกรองสถานะ open
               params.push('New', 'Reopened');
               break;
           case 'pending':
-              query += ` AND tickets.status IN (?, ?, ?)`;
+              query += ` AND tickets.status IN (?, ?, ?)`; // ตัวกรองสถานะ pending
               params.push('In Progress', 'Pending', 'Assigned');
               break;
           case 'resolved':
-              query += ` AND tickets.status = ?`;
+              query += ` AND tickets.status = ?`; // ตัวกรองสถานะ resolved
               params.push('Resolved');
               break;
           case 'closed':
-              query += ` AND tickets.status = ?`;
+              query += ` AND tickets.status = ?`; // ตัวกรองสถานะ closed
               params.push('Closed');
               break;
           default:
-              return res.status(400).send('Invalid status');
+              return res.status(400).send('Invalid status'); // กรณีที่สถานะไม่ถูกต้อง
       }
   }
 
-  // Add priority filter
+  // เพิ่มเงื่อนไขตัวกรองลำดับความสำคัญ
   if (priority && priority !== 'all') {
       query += ` AND queue.priority = ?`;
       params.push(priority);
   }
 
-  // Complete the query with ordering only
+  // เรียงลำดับข้อมูลตามวันที่สร้างในลำดับจากมากไปน้อย
   query += ` ORDER BY tickets.created_at DESC`;
 
-  // Execute the main query
+  // Execute query เพื่อนำข้อมูลตั๋วมาแสดง
   db.query(query, params, (error, results) => {
       if (error) {
           console.error('Database query error:', error);
           return res.status(500).send('Error retrieving tickets');
       }
 
-      // No need for count query since we're displaying all tickets
+      // แสดงผลหน้าตั๋วใน admin view พร้อมตัวกรอง
       res.render('admin/tickets', {
           tickets: results,
           selectedStatus: status || 'all',
@@ -253,12 +246,9 @@ exports.viewTickets = (req, res) => {
   });
 };
 
-
-
-
-  // Function to render individual ticket details
+// ฟังก์ชันแสดงรายละเอียดของตั๋วแต่ละรายการ
 exports.viewTicketDetail = (req, res) => {
-    const ticketId = parseInt(req.params.ticket_id, 10); // Get ticket_id from the URL parameter
+    const ticketId = parseInt(req.params.ticket_id, 10); // ดึงค่า ticket_id จาก URL
 
     db.query(
       `SELECT t.ticket_id, t.title, t.description, t.status, t.created_at, t.updated_at,
@@ -266,43 +256,43 @@ exports.viewTicketDetail = (req, res) => {
               u.user_id, u.username, u.email
        FROM tickets t
        JOIN users u ON t.user_id = u.user_id
-       WHERE t.ticket_id = ?`,
+       WHERE t.ticket_id = ?`, // Query เพื่อดึงรายละเอียดตั๋วตาม ticket_id
       [ticketId],
       (error, result) => {
-          console.log("Ticket ID:", ticketId); // Log the ticket ID
-          console.log("Query result:", result); // Log the query result
+          console.log("Ticket ID:", ticketId); // แสดง ticket ID ใน console
+          console.log("Query result:", result); // แสดงผลการ query ใน console
           
           if (error) {
               console.error('Error retrieving ticket details:', error);
               return res.status(500).send('Error retrieving ticket details');
           }
           if (result.length === 0) {
-              return res.status(404).send('Ticket not found');
+              return res.status(404).send('Ticket not found'); // ถ้าไม่พบตั๋ว
           }
   
-          res.render('admin/ticketDetail', { ticket: result[0] });
+          res.render('admin/ticketDetail', { ticket: result[0] }); // ส่งข้อมูลตั๋วไปยังหน้าแสดงรายละเอียด
       }
   );
-}
-
+};
+// ฟังก์ชันสำหรับตั้งค่าลำดับความสำคัญของตั๋ว
 exports.setPriority = (req, res) => {
-  const ticketId = parseInt(req.params.ticket_id, 10);
-  const { priority } = req.body;
+  const ticketId = parseInt(req.params.ticket_id, 10); // รับค่า ticketId จาก URL
+  const { priority } = req.body; // รับค่า priority จาก body ของ request
 
-  console.log('Received request to update priority. Ticket ID:', ticketId, 'Priority:', priority); // Log received values
+  console.log('Received request to update priority. Ticket ID:', ticketId, 'Priority:', priority); // Log ค่าที่ได้รับ
 
-  // Validate priority
+  // ตรวจสอบค่าความสำคัญที่ถูกต้อง
   const validPriorities = ['urgent', 'high', 'medium', 'low'];
   if (!validPriorities.includes(priority)) {
-    console.error('Invalid priority value received:', priority); // Log invalid priority
+    console.error('Invalid priority value received:', priority); // Log ค่าความสำคัญที่ไม่ถูกต้อง
     return res.status(400).send('Invalid priority value');
   }
 
-  console.log('Updating ticket:', ticketId, 'with priority:', priority); // Debugging log
+  console.log('Updating ticket:', ticketId, 'with priority:', priority); // Log สำหรับ debugging
 
-  // Step 1: Get the queue_id from tickets
+  // ขั้นตอนที่ 1: ดึงค่า queue_id จากตั๋ว
   db.query(
-    `SELECT queue_id FROM tickets WHERE ticket_id = ?`,
+    `SELECT queue_id FROM tickets WHERE ticket_id = ?`, // Query เพื่อดึง queue_id จากตั๋วตาม ticket_id
     [ticketId],
     (err, results) => {
       if (err) {
@@ -311,14 +301,14 @@ exports.setPriority = (req, res) => {
       }
 
       if (results.length === 0) {
-        console.error('No ticket found with ticket_id:', ticketId); // Log if no ticket found
+        console.error('No ticket found with ticket_id:', ticketId); // Log หากไม่พบ ticket
         return res.status(404).send('Ticket not found');
       }
 
-      const queueId = results[0].queue_id; // Get the queue_id
-      console.log('Retrieved queue_id:', queueId); // Log the retrieved queue_id
+      const queueId = results[0].queue_id; // รับค่า queue_id
+      console.log('Retrieved queue_id:', queueId); // Log queue_id ที่ได้รับ
 
-      // Step 2: Check if the queue_id exists in the queue table
+      // ขั้นตอนที่ 2: ตรวจสอบว่า queue_id มีอยู่ในตาราง queue หรือไม่
       db.query(
         `SELECT * FROM queue WHERE queue_id = ?`,
         [queueId],
@@ -329,13 +319,13 @@ exports.setPriority = (req, res) => {
           }
 
           if (checkResults.length === 0) {
-            console.error('Queue not found for queue_id:', queueId); // Log if no queue found
+            console.error('Queue not found for queue_id:', queueId); // Log หากไม่พบ queue
             return res.status(404).send('Queue not found');
           }
 
-          // Step 3: Update the priority in the queue table
+          // ขั้นตอนที่ 3: อัปเดตลำดับความสำคัญในตาราง queue
           db.query(
-            `UPDATE queue SET priority = ? WHERE queue_id = ?`,
+            `UPDATE queue SET priority = ? WHERE queue_id = ?`, // Query สำหรับอัปเดต priority
             [priority, queueId],
             (queueError, updateResult) => {
               if (queueError) {
@@ -343,14 +333,14 @@ exports.setPriority = (req, res) => {
                 return res.status(500).send('Failed to update queue priority');
               }
 
-              // Check if any row was updated
+              // ตรวจสอบว่าแถวไหนถูกอัปเดตบ้าง
               if (updateResult.affectedRows === 0) {
-                console.error('No rows updated for queue_id:', queueId); // Log if no rows updated
+                console.error('No rows updated for queue_id:', queueId); // Log หากไม่มีแถวไหนถูกอัปเดต
                 return res.status(404).send('Queue not found for update');
               }
 
-              console.log('Priority updated successfully for ticket ID:', ticketId); // Log success
-              res.status(200).send('Priority updated successfully'); // Send success response
+              console.log('Priority updated successfully for ticket ID:', ticketId); // Log ความสำเร็จ
+              res.status(200).send('Priority updated successfully'); // ส่ง response ความสำเร็จ
             }
           );
         }
@@ -359,22 +349,23 @@ exports.setPriority = (req, res) => {
   );
 };
 
+// ฟังก์ชันสำหรับตั้งค่าสถานะของตั๋ว
 exports.setStatus = (req, res) => {
-  const ticketId = parseInt(req.params.ticket_id, 10);
-  const { status } = req.body;
+  const ticketId = parseInt(req.params.ticket_id, 10); // รับค่า ticketId จาก URL
+  const { status } = req.body; // รับค่า status จาก body ของ request
 
-  console.log('Received request to update status. Ticket ID:', ticketId, 'Status:', status); // Log received values
+  console.log('Received request to update status. Ticket ID:', ticketId, 'Status:', status); // Log ค่าที่ได้รับ
 
-  // Validate status
-  const validStatuses = ['In Progress', 'Pending', 'Resolved', 'Closed' , 'Reopened', 'Escalated'];
+  // ตรวจสอบค่าสถานะที่ถูกต้อง
+  const validStatuses = ['In Progress', 'Pending', 'Resolved', 'Closed', 'Reopened', 'Escalated'];
   if (!validStatuses.includes(status)) {
-      console.error('Invalid status value received:', status); // Log invalid status
+      console.error('Invalid status value received:', status); // Log ค่าสถานะที่ไม่ถูกต้อง
       return res.status(400).send('Invalid status value');
   }
 
-  console.log('Updating ticket:', ticketId, 'with status:', status); // Debugging log
+  console.log('Updating ticket:', ticketId, 'with status:', status); // Log สำหรับ debugging
 
-  // Update the ticket status and updated_at timestamp in the database
+  // อัปเดตสถานะของตั๋วและเวลาที่อัปเดตล่าสุดในฐานข้อมูล
   db.query(
       `UPDATE tickets SET status = ?, updated_at = NOW() WHERE ticket_id = ?`,
       [status, ticketId],
@@ -385,43 +376,42 @@ exports.setStatus = (req, res) => {
           }
 
           if (results.affectedRows === 0) {
-              console.error('No rows updated for ticket_id:', ticketId); // Log if no rows updated
+              console.error('No rows updated for ticket_id:', ticketId); // Log หากไม่มีแถวไหนถูกอัปเดต
               return res.status(404).send('Ticket not found for update');
           }
 
-          console.log('Status updated successfully for ticket ID:', ticketId); // Log success
-          res.status(200).send('Status updated successfully'); // Send success response
+          console.log('Status updated successfully for ticket ID:', ticketId); // Log ความสำเร็จ
+          res.status(200).send('Status updated successfully'); // ส่ง response ความสำเร็จ
       }
   );
 };
 
-// Function to render staff selection page
+// ฟังก์ชันเพื่อแสดงหน้าเลือกพนักงาน
 exports.getStaffSelection = (req, res) => {
-  const ticketId = parseInt(req.params.ticket_id, 10);
+  const ticketId = parseInt(req.params.ticket_id, 10); // รับค่า ticketId จาก URL
 
-  // Fetch staff list from database
+  // ดึงรายการพนักงานจากฐานข้อมูล
   db.query('SELECT * FROM staff', (error, staffList) => {
     if (error) {
-        console.error('Error fetching staff list:', error); // Log error to console
+        console.error('Error fetching staff list:', error); // Log ข้อผิดพลาด
         return res.status(500).send('Error fetching staff list');
     }
-    // Debugging log to check staffList
+    // Log รายการพนักงานที่ได้รับ
     console.log('Fetched staff list:', staffList);
-    // Render staff selection page with ticketId and staffList
+    // แสดงหน้าเลือกพนักงานพร้อมกับ ticketId และ staffList
     res.render('admin/select-staff', { ticketId, staffList });
   });
 };
 
-
-
+// ฟังก์ชันสำหรับมอบหมายพนักงานให้กับตั๋ว
 exports.assignStaffToTicket = (req, res) => {
-  const ticketId = parseInt(req.params.ticket_id, 10);
-  const staffId = parseInt(req.body.staff_id, 10); // Corrected parsing
+  const ticketId = parseInt(req.params.ticket_id, 10); // รับค่า ticketId จาก URL
+  const staffId = parseInt(req.body.staff_id, 10); // รับค่า staffId จาก body ของ request
 
   console.log('Received ticketId:', ticketId);
   console.log('Received staff_id:', staffId);
 
-  // Step 1: Fetch queue_id from ticket table using ticketId
+  // ขั้นตอนที่ 1: ดึง queue_id จากตาราง ticket โดยใช้ ticketId
   db.query('SELECT queue_id FROM tickets WHERE ticket_id = ?', [ticketId], (error, results) => {
     if (error) {
       console.error('Error fetching queue_id from ticket:', error);
@@ -436,7 +426,7 @@ exports.assignStaffToTicket = (req, res) => {
     const queueId = results[0].queue_id;
     console.log('Fetched queue_id:', queueId);
 
-    // Step 2: Delete any existing rows with the same queue_id and staff_id in staff_has_queue
+    // ขั้นตอนที่ 2: ลบแถวที่มี queue_id เดียวกันในตาราง staff_has_queue
     db.query('DELETE FROM staff_has_queue WHERE queue_id = ?', [queueId], (deleteError, deleteResults) => {
       if (deleteError) {
         console.error('Error deleting rows from staff_has_queue:', deleteError);
@@ -447,11 +437,10 @@ exports.assignStaffToTicket = (req, res) => {
       // เรียกใช้ฟังก์ชันเพื่อเพิ่มแถวใหม่สำหรับการจับคู่ staff_id กับ queue_id
       insertNewStaffQueue(ticketId, queueId, staffId, res);
     });
-    
   });
 };
 
-// Helper function to insert a new staff_has_queue row
+// ฟังก์ชันช่วยเหลือสำหรับเพิ่มแถวใหม่ในตาราง staff_has_queue
 function insertNewStaffQueue(ticketId, queueId, staffId, res) {
   db.query('INSERT INTO staff_has_queue (queue_id, staff_id) VALUES (?, ?)', [queueId, staffId], (insertError, insertResults) => {
     if (insertError) {
@@ -459,7 +448,7 @@ function insertNewStaffQueue(ticketId, queueId, staffId, res) {
       return res.status(500).send('Failed to insert new staff_has_queue row');
     }
 
-    // Step 4: Update the staff name in the queue table
+    // ขั้นตอนที่ 4: อัปเดตชื่อพนักงานในตาราง queue
     db.query('SELECT name FROM staff WHERE staff_id = ?', [staffId], (nameError, nameResults) => {
       if (nameError) {
         console.error('Error fetching staff name:', nameError);
@@ -468,7 +457,7 @@ function insertNewStaffQueue(ticketId, queueId, staffId, res) {
 
       const staffName = nameResults[0].name;
 
-      // Update the staff name in the queue table
+      // อัปเดตชื่อพนักงานในตาราง queue
       db.query('UPDATE queue SET name = ? WHERE queue_id = ?', [staffName, queueId], (updateError, updateResults) => {
         if (updateError) {
           console.error('Error updating queue:', updateError);
@@ -477,7 +466,7 @@ function insertNewStaffQueue(ticketId, queueId, staffId, res) {
 
         console.log('Queue updated successfully with new staff name');
 
-        // Step 5: Update ticket status to 'Assigned'
+        // ขั้นตอนที่ 5: อัปเดตสถานะตั๋วเป็น 'Assigned'
         db.query('UPDATE tickets SET status = ? WHERE ticket_id = ?', ['Assigned', ticketId], (statusError, statusResults) => {
           if (statusError) {
             console.error('Error updating ticket status:', statusError);
@@ -493,18 +482,19 @@ function insertNewStaffQueue(ticketId, queueId, staffId, res) {
 }
 
 
-
+// ฟังก์ชันสำหรับแสดงหน้าสถานะ
 exports.status = (req, res) => {
   res.render('admin/status');
 };
 
+// ฟังก์ชันสำหรับดึงตั๋วตามสถานะ
 exports.getTicketsByStatus = (req, res) => {
-  const status = req.params.status;
-  const searchTerm = req.query.search || ''; // Get the search term from the query parameters
+  const status = req.params.status; // รับค่าสถานะจาก URL
+  const searchTerm = req.query.search || ''; // รับคำค้นหาจาก query parameters
   let query;
   let params = [];
 
-  // Build the query based on status
+  // สร้าง query ตามสถานะที่ระบุ
   switch (status) {
       case 'open':
           query = 'SELECT * FROM tickets WHERE status IN (?, ?) AND title LIKE ?';
@@ -526,22 +516,28 @@ exports.getTicketsByStatus = (req, res) => {
           return res.status(400).send('Invalid status');
   }
 
-  // Execute the query
+  // รัน query
   db.query(query, params, (error, results) => {
       if (error) {
           console.error('Database query error:', error);
           return res.status(500).send('Server Error');
       }
-      res.render('admin/statusPage', { tickets: results, status, searchTerm }); // Pass searchTerm to the view
+      res.render('admin/statusPage', { tickets: results, status, searchTerm }); // ส่งค่า searchTerm ให้กับ view
   });
 };
 
 
+// ฟังก์ชันสำหรับแสดงหน้า queue
+exports.queue = (req, res) => {
+  res.render('admin/queue');
+};
+
+// ฟังก์ชันสำหรับดึงข้อมูลตั๋วตามลำดับความสำคัญ
 exports.getTicketsByPriority = (req, res) => {
-  const priority = req.params.priority;  // รับค่าจาก URL เช่น 'low', 'medium', 'high', 'urgent'
+  const priority = req.params.priority;  // รับค่า priority จาก URL เช่น 'low', 'medium', 'high', 'urgent'
   const searchQuery = req.query.search || '';  // รับคำค้นหาจาก query string
 
-  // ค้นหา queue_id จากฐานข้อมูลที่ตรงกับ priority
+  // Query เพื่อค้นหา queue_id ที่มีลำดับความสำคัญตรงกับ priority
   const queueQuery = 'SELECT queue_id FROM queue WHERE priority = ?';
 
   db.query(queueQuery, [priority], (queueError, queueResults) => {
@@ -556,15 +552,14 @@ exports.getTicketsByPriority = (req, res) => {
           return res.render('admin/ticketsByPriority', { tickets: [], priority, searchQuery });
       }
 
-      // ดึง queue_id ทั้งหมดที่ตรงกับ priority
-      const queueIds = queueResults.map(result => result.queue_id);  // ดึง array ของ queue_id
+      // ดึง queue_id ทั้งหมดที่ตรงกับ priority เป็น array
+      const queueIds = queueResults.map(result => result.queue_id);
 
-      console.log('Queue IDs:', queueIds);  // เพิ่ม log เพื่อดู queue_ids ที่ได้
+      console.log('Queue IDs:', queueIds);  // เพิ่ม log เพื่อแสดงค่า queue_ids ที่ได้
 
-      // คำสั่ง SQL เพื่อดึงข้อมูลตั๋วที่มี queue_id ที่ตรงกับค่าที่ได้จาก array queueIds
+      // Query สำหรับค้นหาตั๋วที่มี queue_id ที่อยู่ใน array queueIds และตรงกับคำค้นหา
       const query = 'SELECT * FROM tickets WHERE queue_id IN (?) AND title LIKE ?';
 
-      // รันคำสั่ง SQL เพื่อค้นหาตั๋ว
       db.query(query, [queueIds, `%${searchQuery}%`], (error, results) => {
           if (error) {
               console.error('Database query error:', error);
@@ -578,24 +573,17 @@ exports.getTicketsByPriority = (req, res) => {
 };
 
 
-
-
-exports.queue = (req, res) => {
-  res.render('admin/queue');
-};
-
-// Controller to get all users
-
+// ฟังก์ชันสำหรับดึงข้อมูลผู้ใช้ทั้งหมดและนับจำนวนผู้ใช้ตาม role
 exports.getAllUsers = (req, res) => {
-const roles = ['all', 'admin', 'staff', 'user'];
+const roles = ['all', 'admin', 'staff', 'user'];  // รายชื่อ role ที่ต้องการนับ
 const counts = {};
 
-// Initialize counts for each role
+// กำหนดค่าเริ่มต้นสำหรับการนับของแต่ละ role เป็น 0
 roles.forEach(role => {
     counts[role] = 0;
 });
 
-// Query for each role's count
+// ใช้ Promise เพื่อดึงข้อมูลและนับจำนวนผู้ใช้ตาม role
 const promises = roles.map(role => {
     return new Promise((resolve, reject) => {
         if (role === 'all') {
@@ -614,6 +602,7 @@ const promises = roles.map(role => {
     });
 });
 
+// รอให้ Promise ทั้งหมดทำงานเสร็จและแสดงผลลัพธ์
 Promise.all(promises)
     .then(() => {
         res.render('admin/userList', { userCounts: counts });
@@ -623,38 +612,37 @@ Promise.all(promises)
     });
 };
 
-
-// Controller to get users by role
+// ฟังก์ชันสำหรับดึงข้อมูลผู้ใช้ตาม role
 exports.getUsersByRole = (req, res) => {
-const role = req.params.role;
-let displayRole = 'All Role'; // Default display role
+const role = req.params.role;  // รับค่า role จาก URL
+let displayRole = 'All Role'; // กำหนดชื่อ role ที่จะแสดงเป็นค่าเริ่มต้น
 
 if (role === 'all') {
-    // If the role is 'all', fetch all users
+    // ถ้า role เป็น 'all' ให้ดึงข้อมูลผู้ใช้ทั้งหมด
     db.query('SELECT * FROM users', (err, results) => {
         if (err) {
             return res.status(500).send(err);
         }
-        // Pass the displayRole variable to the template
+        // ส่งค่า displayRole ให้กับ template
         res.render('admin/userbyrolePage', { users: results, displayRole });
     });
 } else {
-    // Fetch users by specific role
+    // ถ้า role เป็นค่าอื่นๆ ให้ดึงข้อมูลผู้ใช้เฉพาะ role นั้นๆ
     db.query('SELECT * FROM users WHERE role = ?', [role], (err, results) => {
         if (err) {
             return res.status(500).send(err);
         }
-        displayRole = role; // Set the display role to the specific role
+        displayRole = role; // กำหนดค่า displayRole ให้ตรงกับ role ที่ระบุ
         res.render('admin/userbyrolePage', { users: results, displayRole });
     });
 }
 };
 
-// Controller to search users by username
+// ฟังก์ชันสำหรับค้นหาผู้ใช้ตาม username
 exports.searchUser = (req, res) => {
-const username = req.query.username; // Get the username from the query
+const username = req.query.username; // รับค่า username จาก query string
 
-// Query to find users by username (case insensitive)
+// Query เพื่อค้นหาผู้ใช้ที่มี username ตรงกับคำค้นหา
 db.query('SELECT * FROM users WHERE username LIKE ?', [`%${username}%`], (err, results) => {
     if (err) {
         return res.status(500).send(err);
@@ -663,8 +651,7 @@ db.query('SELECT * FROM users WHERE username LIKE ?', [`%${username}%`], (err, r
 });
 };
 
-
-// Controller to get a specific user by ID for editing
+// ฟังก์ชันสำหรับดึงข้อมูลผู้ใช้เฉพาะ ID เพื่อนำไปแก้ไข
 exports.getUserById = (req, res) => {
 const userId = parseInt(req.params.userId, 10);
 
@@ -679,37 +666,37 @@ db.query('SELECT * FROM users WHERE user_id = ?', [userId], (err, results) => {
 });
 };
 
-// Controller to update user information
+// ฟังก์ชันสำหรับอัปเดตข้อมูลผู้ใช้
 exports.updateUser = (req, res) => {
 const userId = req.params.userId;
-const { username, email, password, role } = req.body; // Include role in the destructuring
+const { username, email, password, role } = req.body; // รับค่า role ในการ destructuring
 
+// Query สำหรับอัปเดตข้อมูลผู้ใช้
 const sql = 'UPDATE users SET username = ?, email = ?, password = ?, role = ? WHERE user_id = ?';
 db.query(sql, [username, email, password, role, userId], (err, results) => {
     if (err) {
         return res.status(500).send(err);
     }
-    res.redirect('/admin/userList'); // Redirect to the user list after updating
+    res.redirect('/admin/userList'); // เปลี่ยนเส้นทางไปยังหน้ารายการผู้ใช้หลังจากอัปเดตเสร็จ
 });
 };
 
-// adminController.js
-
+// ฟังก์ชันสำหรับแสดงหน้าเพิ่มผู้ใช้ใหม่
 exports.showNewUserForm = (req, res) => {
-// Render หน้า newUser โดยไม่ต้องมี error message
+// แสดงหน้า newUser โดยไม่ต้องมี error message
 res.render('admin/newUser', { error: null });
 };
 
-
+// ฟังก์ชันสำหรับสร้างผู้ใช้ใหม่
 exports.createUser = (req, res) => {
 const { username, email, password, confirm_password, role } = req.body;
 
-// ตรวจสอบว่ารหัสผ่านตรงกันหรือไม่
+// ตรวจสอบว่ารหัสผ่านที่ป้อนตรงกันหรือไม่
 if (password !== confirm_password) {
     return res.render('admin/newUser', { error: 'Passwords do not match' });
 }
 
-// สร้าง query สำหรับเพิ่มผู้ใช้ใหม่ในตาราง users
+// Query สำหรับเพิ่มผู้ใช้ใหม่ในตาราง users
 const query = `
     INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)
 `;
@@ -719,7 +706,7 @@ db.query(query, [username, email, password, role], (err, results) => {
         return res.render('admin/newUser', { error: 'Failed to create user' });
     }
 
-    // หาก role เป็น 'staff' ให้เพิ่มข้อมูลในตาราง staff
+    // ถ้า role เป็น 'staff' ให้เพิ่มข้อมูลในตาราง staff ด้วย
     if (role === 'staff') {
         const staffQuery = `
             INSERT INTO staff (name, email) VALUES (?, ?)
@@ -730,11 +717,11 @@ db.query(query, [username, email, password, role], (err, results) => {
                 return res.render('admin/newUser', { error: 'Failed to create staff member' });
             }
             
-            // หากสำเร็จทั้งสองอย่าง ให้ redirect หรือแสดงข้อความสำเร็จ
-            res.redirect('/admin/userList'); // เปลี่ยนเส้นทางหลังจากสร้างผู้ใช้เสร็จ
+            // ถ้าทำงานสำเร็จทั้งสอง query ให้ redirect ไปยังหน้ารายการผู้ใช้
+            res.redirect('/admin/userList');
         });
     } else {
-        // หากไม่ใช่ staff ให้ redirect หรือแสดงข้อความสำเร็จ
+        // ถ้าไม่ใช่ role 'staff' ก็ redirect ไปยังหน้ารายการผู้ใช้เลย
         res.redirect('/admin/userList');
     }
 });
