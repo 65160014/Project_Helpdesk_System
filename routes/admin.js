@@ -1,36 +1,24 @@
 const express = require('express');
 const router = express.Router();
-const adminController = require('../controllers/adminController');
-const { checkAdminRole } = require('../middleware/authMiddleware'); // นำเข้า middleware สำหรับตรวจสอบสิทธิ์แอดมิน
+const adminController = require('../controllers/adminController'); // ตรวจสอบว่าเส้นทางถูกต้อง
+const { checkAdminRole } = require('../middleware/authMiddleware');
 
-// หน้า dashboard
-
-// แสดงหน้า dashboard สำหรับแอดมิน
+// กำหนด route ให้ถูกต้อง
 router.get('/dashboard', checkAdminRole, adminController.getDashboard);
-
-// แสดงฟอร์มสำหรับเพิ่มรายงานใหม่
 router.get('/report/add', checkAdminRole, adminController.showAddReportForm);
-
-// เพิ่มรายงานใหม่ (รับข้อมูลจากฟอร์ม)
-router.post('/report', checkAdminRole, adminController.addReport);
-
-// ดูรายละเอียดของรายงานตาม ID
+router.post('/report/add', checkAdminRole, adminController.addReport);
 router.get('/report/:id', checkAdminRole, adminController.getReportDetails);
-
-// แก้ไขรายงานตาม ID (รับข้อมูลจากฟอร์ม)
 router.post('/report/edit/:id', checkAdminRole, adminController.updateReport);
 
+module.exports = router;
 
-// หน้า tickets
 
-// แสดงรายการตั๋วทั้งหมด
+// // หน้า tickets
+
+// // แสดงรายการตั๋วทั้งหมด
 router.get('/tickets', checkAdminRole, adminController.viewTickets);
 // ดูรายละเอียดของตั๋วตาม ticket_id
 router.get('/tickets/:ticket_id', checkAdminRole, adminController.viewTicketDetail);
-// กำหนดลำดับความสำคัญให้กับตั๋วตาม ticket_id
-router.post('/tickets/:ticket_id/set-priority', checkAdminRole, adminController.setPriority);
-// กำหนดสถานะให้กับตั๋วตาม ticket_id
-router.post('/tickets/:ticket_id/set-status', checkAdminRole, adminController.setStatus);
 // แสดงหน้าเลือก staff สำหรับตั๋วตาม ticket_id
 router.get('/tickets/:ticket_id/select-staff', checkAdminRole, adminController.getStaffSelection);
 // กำหนด staff ให้กับตั๋วตาม ticket_id
@@ -69,13 +57,3 @@ router.get('/newUser', checkAdminRole, adminController.showNewUserForm);
 router.post('/createUser', checkAdminRole, adminController.createUser);
 
 module.exports = router;
-
-
-// หน้า search
-
-// // แสดงรายการ FAQ ทั้งหมด
-// router.get('/search', checkAdminRole, adminController.getFaqList);
-// // แสดงรายละเอียดของ FAQ ตาม ID
-// router.get('/search/:id', checkAdminRole, adminController.getFaqDetail);
-// // ค้นหา FAQ
-// router.get('/searchbar', checkAdminRole, adminController.searchFaqs);

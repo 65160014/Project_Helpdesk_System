@@ -37,9 +37,9 @@
                 <a href="/admin/dashboard" class="return-button">Back to Dashboard</a>
             </div>
 
-            <form action="/admin/report" method="POST" class="report-form">
-                <input type="hidden" name="admin_name" value="<%= adminName %>"> <!-- Use adminName from the session -->
-            
+            <!-- Form for adding a new report -->
+            <form action="/admin/report/add" method="POST" class="report-form">
+                <!-- The admin_name is passed via the session variable in the controller and inserted here -->
                 <div class="form-group">
                     <label for="admin_name" class="form-label">Admin Name</label>
                     <input type="text" id="admin_name" name="admin_name" class="form-input" value="<%= adminName %>" readonly>
@@ -57,7 +57,7 @@
             
                 <button type="submit" class="submit-button">Add Report</button>
             </form>
-                      
+                        
         </div>
     </div>
 </body>

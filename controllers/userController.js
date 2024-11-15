@@ -2,7 +2,6 @@ const db = require('../config/db');
 const Ticket = require('../models/Ticket');
 const Queue = require('../models/Queue');
 const Report = require('../models/Report');
-const User = require('../models/User');
 const KnowledgeBase = require('../models/KnowledgeBase');
 
 // แสดงหน้า New Tickets
